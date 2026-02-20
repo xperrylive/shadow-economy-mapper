@@ -14,6 +14,10 @@ Score composition:
   TOTAL                 : 0-100
 """
 
+import statistics
+from collections import defaultdict
+from datetime import datetime
+
 from ..types import CredibilityScore, ScoreBreakdown, LedgerEntryInput
 from ..anomaly.anomaly_detector import detect_anomalies
 from ..linking.cross_source_linker import compute_cross_source_score
@@ -86,16 +90,58 @@ def _compute_activity_score(entries: list[LedgerEntryInput]) -> float:
 
 def _compute_consistency_score(entries: list[LedgerEntryInput]) -> float:
     """Score based on consistent activity over time. Max 20."""
-    # TODO (Person 4): Implement
-    # Consider: coefficient of variation in weekly totals, gap analysis
-    return 10.0  # Placeholder
+    weekly: dict[tuple[int, int], float] = defaultdict(float)
+    for e in entries:
+        dt = datetime.fromisoformat(e["event_time"].replace("Z", "+00:00"))
+        cal = dt.isocalendar()
+        weekly[(cal.year, cal.week)] += e["amount"]
+
+    totals = list(weekly.values())
+    n_weeks = len(totals)
+
+    if n_weeks == 1:
+        return 5.0  # One week — no consistency signal yet
+
+    if n_weeks < 4:
+        return 10.0  # Too few weeks for reliable CV; partial credit
+
+    mean = statistics.mean(totals)
+    if mean == 0:
+        return 0.0
+
+    cv = statistics.stdev(totals) / mean
+    if cv <= 0.20:
+        return 20.0
+    if cv <= 0.40:
+        return 16.0
+    if cv <= 0.60:
+        return 12.0
+    if cv <= 0.80:
+        return 8.0
+    if cv <= 1.00:
+        return 5.0
+    return 2.0
 
 
 def _compute_longevity_score(entries: list[LedgerEntryInput]) -> float:
     """Score based on how far back evidence goes. Max 20."""
-    # TODO (Person 4): Implement
-    # Consider: date range of earliest to latest entry
-    return 10.0  # Placeholder
+    times = [
+        datetime.fromisoformat(e["event_time"].replace("Z", "+00:00"))
+        for e in entries
+    ]
+    span_days = (max(times) - min(times)).days
+
+    if span_days < 7:
+        return 2.0
+    if span_days < 30:
+        return 5.0
+    if span_days < 90:
+        return 10.0
+    if span_days < 180:
+        return 14.0
+    if span_days < 365:
+        return 17.0
+    return 20.0
 
 
 def _compute_evidence_strength_score(entries: list[LedgerEntryInput]) -> float:
