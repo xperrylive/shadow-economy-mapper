@@ -1,18 +1,21 @@
 """Evidence views: upload, list, ledger, and score endpoints."""
 
-from rest_framework import viewsets, permissions, status
+from decimal import Decimal
+
+from django.shortcuts import get_object_or_404
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 
 from core.models import BusinessProfile
-from .models import Evidence, LedgerEntry, CredibilityScore
+from .models import CredibilityScore, Evidence, LedgerEntry
 from .serializers import (
+    CredibilityScoreSerializer,
     EvidenceSerializer,
     EvidenceUploadSerializer,
     LedgerEntrySerializer,
-    CredibilityScoreSerializer,
 )
+from .services import create_manual_ledger_entry, process_evidence_upload
 
 
 class EvidenceViewSet(viewsets.ModelViewSet):
@@ -27,29 +30,57 @@ class EvidenceViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def upload(self, request):
         """
-        Upload a new piece of evidence.
+        Upload a file or submit a manual entry.
 
-        POST /api/evidence/upload/
-        Body: multipart form with business_id, source_type, file
+        File upload  — multipart/form-data:
+            business_id, source_type, file
+
+        Manual entry — application/json:
+            business_id, source_type="manual", date, total_sales, order_count, notes
         """
         serializer = EvidenceUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
 
         business = get_object_or_404(
             BusinessProfile,
-            id=serializer.validated_data["business_id"],
+            id=data["business_id"],
             user=request.user,
         )
 
-        # TODO (Person 2): Upload file to Supabase Storage
-        # TODO (Person 2): Create evidence record
-        # TODO (Person 2): Queue extraction job
+        source_type = data["source_type"]
 
-        # Placeholder response
+        if source_type == "manual":
+            evidence = create_manual_ledger_entry(
+                business=business,
+                date=data.get("date"),
+                total_sales=data.get("total_sales", Decimal("0.00")),
+                order_count=data.get("order_count", 0),
+                notes=data.get("notes", ""),
+            )
+        else:
+            uploaded_file = data.get("file")
+            if not uploaded_file:
+                return Response(
+                    {
+                        "error": True,
+                        "message": "A file is required for non-manual source types.",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            evidence = process_evidence_upload(
+                business=business,
+                source_type=source_type,
+                file_bytes=uploaded_file.read(),
+                original_filename=uploaded_file.name,
+                file_size=uploaded_file.size,
+                content_type=getattr(uploaded_file, "content_type", ""),
+            )
+
         return Response(
             {
-                "evidence_id": "placeholder",
-                "status": "UPLOADED",
+                "evidence_id": str(evidence.id),
+                "status": evidence.status,
                 "message": "Evidence received. Extraction will begin shortly.",
             },
             status=status.HTTP_201_CREATED,
@@ -98,14 +129,28 @@ class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
         POST /api/evidence/scores/compute/
         Body: { "business_id": "uuid" }
         """
+        import logging
+        logger = logging.getLogger(__name__)
+
         business_id = request.data.get("business_id")
         business = get_object_or_404(
             BusinessProfile, id=business_id, user=request.user
         )
 
-        # TODO (Person 2 + Person 4): Call scoring engine
-        # entries = LedgerEntry.objects.filter(business=business)
-        # score = scoring.compute_score(entries)
+        try:
+            from .scoring_service import compute_and_save_score
+            compute_and_save_score(business)
+        except ImportError:
+            logger.warning(
+                "packages.scoring not available; score not computed for business %s.",
+                business_id,
+            )
+        except Exception as exc:
+            logger.error("Score computation failed for business %s: %s", business_id, exc)
+            return Response(
+                {"error": True, "message": f"Score computation failed: {exc}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response(
             {"message": "Score computation queued.", "business_id": str(business.id)},
