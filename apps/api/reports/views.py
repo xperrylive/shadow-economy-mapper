@@ -1,14 +1,18 @@
-"""Report views: generate, list, and share reports."""
+"""Report views: generate, list, share, and public-verify reports."""
 
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import serializers as drf_serializers
+import logging
+
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from rest_framework import permissions, serializers as drf_serializers, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.response import Response
 
 from core.models import BusinessProfile
 from .models import Report, ShareToken
+from .services import process_report_generate
+
+logger = logging.getLogger(__name__)
 
 
 class ReportSerializer(drf_serializers.ModelSerializer):
@@ -40,8 +44,19 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             BusinessProfile, id=business_id, user=request.user
         )
 
-        # TODO (Person 2): Generate PDF, upload to Supabase Storage
-        # TODO: Snapshot current score + insights into data_snapshot
+        try:
+            process_report_generate(business, report_type)
+        except ValueError as exc:
+            return Response(
+                {"error": True, "message": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as exc:
+            logger.error("Report generation failed for business %s: %s", business_id, exc)
+            return Response(
+                {"error": True, "message": f"Report generation failed: {exc}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response(
             {"message": "Report generation queued.", "business_id": str(business.id)},

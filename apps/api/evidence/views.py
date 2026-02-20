@@ -1,6 +1,9 @@
 """Evidence views: upload, list, ledger, and score endpoints."""
 
+import logging
 from decimal import Decimal
+
+logger = logging.getLogger(__name__)
 
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
@@ -129,9 +132,6 @@ class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
         POST /api/evidence/scores/compute/
         Body: { "business_id": "uuid" }
         """
-        import logging
-        logger = logging.getLogger(__name__)
-
         business_id = request.data.get("business_id")
         business = get_object_or_404(
             BusinessProfile, id=business_id, user=request.user
