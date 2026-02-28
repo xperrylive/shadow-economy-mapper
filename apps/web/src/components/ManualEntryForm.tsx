@@ -143,21 +143,25 @@ export function ManualEntryForm({ onSubmit, submitting, result, onClearResult }:
   const handleFinalSubmit = async () => {
     if (!validateStep(2)) return;
 
-    await onSubmit({
-      date,
-      total_sales: parseFloat(totalSales.replace(/,/g, '')),
-      order_count: orderCount ? parseInt(orderCount) : undefined,
-      notes: notes || undefined,
-    });
+    try {
+      await onSubmit({
+        date,
+        total_sales: parseFloat(totalSales.replace(/,/g, '')),
+        order_count: orderCount ? parseInt(orderCount) : undefined,
+        notes: notes || undefined,
+      });
 
-    // Clear form and draft
-    setDate('');
-    setTotalSales('');
-    setOrderCount('');
-    setNotes('');
-    setStep(1);
-    setShowConfirmation(false);
-    localStorage.removeItem('manualEntryDraft');
+      // Only clear form on success
+      setDate('');
+      setTotalSales('');
+      setOrderCount('');
+      setNotes('');
+      setStep(1);
+      setShowConfirmation(false);
+      localStorage.removeItem('manualEntryDraft');
+    } catch {
+      // Keep confirmation screen visible so user sees the error message
+    }
   };
 
   // Confirmation screen

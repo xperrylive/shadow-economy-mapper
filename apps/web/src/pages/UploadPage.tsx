@@ -5,6 +5,7 @@ import { ManualEntryForm } from '../components/ManualEntryForm';
 import { StatusBadge } from '../components/StatusBadge';
 import { uploadEvidence, uploadManualEntry, getEvidenceList } from '../lib/services';
 import type { SourceType, Evidence } from '../types';
+import { CheckCircle, AlertCircle, X, Package } from 'lucide-react';
 
 export function UploadPage() {
   const { currentBusiness } = useBusiness();
@@ -72,6 +73,7 @@ export function UploadPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Submission failed.';
       setManualResult({ success: false, message: msg });
+      throw err; // Re-throw so the form knows submission failed
     } finally {
       setManualSubmitting(false);
     }
@@ -93,6 +95,35 @@ export function UploadPage() {
         />
       </section>
 
+      {/* Manual Entry Result (shown at page level so it persists after form reset) */}
+      {manualResult && (
+        <div className={`flex items-start gap-2 p-4 rounded-xl shadow text-sm ${
+          manualResult.success
+            ? 'bg-green-50 text-green-900 border border-green-200'
+            : 'bg-red-50 text-red-900 border border-red-200'
+        }`}>
+          {manualResult.success ? (
+            <CheckCircle size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+          ) : (
+            <AlertCircle size={18} className="text-red-600 mt-0.5 flex-shrink-0" />
+          )}
+          <div className="flex-1">
+            <p className="font-medium">{manualResult.success ? 'Entry submitted!' : 'Submission failed'}</p>
+            <p className="mt-1">{manualResult.message}</p>
+            {manualResult.success && (
+              <p className="mt-1 text-green-700">Your entry is now visible in the Dashboard and Ledger.</p>
+            )}
+          </div>
+          <button
+            onClick={() => setManualResult(null)}
+            className="p-1 hover:bg-black/5 rounded min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Dismiss message"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Manual Entry */}
       <section className="bg-white rounded-xl shadow p-6">
         <h2 className="text-lg font-semibold mb-1">Manual Entry</h2>
@@ -108,9 +139,9 @@ export function UploadPage() {
       </section>
 
       {/* Recent Uploads */}
-      {recentUploads.length > 0 && (
-        <section className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Recent Uploads</h2>
+      <section className="bg-white rounded-xl shadow p-6">
+        <h2 className="text-lg font-semibold mb-4">Recent Uploads</h2>
+        {recentUploads.length > 0 ? (
           <div className="space-y-2">
             {recentUploads.map((item) => (
               <div
@@ -131,8 +162,14 @@ export function UploadPage() {
               </div>
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="text-center py-6">
+            <Package size={32} className="mx-auto text-gray-300 mb-2" />
+            <p className="text-sm text-gray-500">No uploads yet.</p>
+            <p className="text-xs text-gray-400 mt-1">Upload a file or create a manual entry above to get started.</p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
