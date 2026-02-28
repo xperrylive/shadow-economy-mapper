@@ -10,6 +10,7 @@ export function ReportsListPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentBusiness) {
@@ -26,6 +27,7 @@ export function ReportsListPage() {
   const handleGenerate = async () => {
     if (!currentBusiness) return;
     setGenerating(true);
+    setGenerateError(null);
     try {
       await generateReport(currentBusiness.id);
       // Poll until the new report appears in the list (max 5 attempts, 1s apart)
@@ -38,8 +40,13 @@ export function ReportsListPage() {
           break;
         }
       }
-    } catch {
-      // ignore
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string; error?: string } } })?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; error?: string } } })?.response?.data?.error ||
+        (err as { message?: string })?.message ||
+        'Failed to generate report.';
+      setGenerateError(msg);
     } finally {
       setGenerating(false);
     }
@@ -58,6 +65,12 @@ export function ReportsListPage() {
           {generating ? 'Generating...' : 'Generate Report'}
         </button>
       </div>
+
+      {generateError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+          {generateError}
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-3">
