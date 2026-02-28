@@ -11,6 +11,7 @@ Person 3 owns this file.
 """
 
 import re
+from datetime import datetime
 from typing import Optional
 from ..types import RawExtractedEvent
 
@@ -20,9 +21,34 @@ TIMESTAMP_PATTERNS = [
     r'\[(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}(?::\d{2})?\s[AP]M)\]',
     # MM/DD/YY, HH:MM AM/PM -
     r'(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}(?::\d{2})?\s[AP]M)\s-',
+    # [DD/MM/YYYY, HH:MM:SS] — 24-hour format (common in many locales)
+    r'\[(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}(?::\d{2})?)\]',
     # DD/MM/YYYY, HH:MM -
     r'(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2})\s-',
 ]
+
+# Formats to try when parsing timestamp strings into datetime
+_TIMESTAMP_FORMATS = [
+    "%d/%m/%Y, %H:%M:%S",   # 26/02/2026, 11:30:15
+    "%d/%m/%Y, %H:%M",      # 26/02/2026, 11:30
+    "%m/%d/%Y, %I:%M:%S %p", # 02/26/2026, 11:30:15 AM
+    "%m/%d/%Y, %I:%M %p",   # 02/26/2026, 11:30 AM
+    "%d/%m/%y, %H:%M:%S",   # 26/02/26, 11:30:15
+    "%d/%m/%y, %H:%M",      # 26/02/26, 11:30
+    "%m/%d/%y, %I:%M:%S %p", # 2/26/26, 11:30:15 AM
+    "%m/%d/%y, %I:%M %p",   # 2/26/26, 11:30 AM
+]
+
+
+def _parse_timestamp(ts_str: str) -> Optional[str]:
+    """Try to parse a raw WhatsApp timestamp string into ISO 8601."""
+    for fmt in _TIMESTAMP_FORMATS:
+        try:
+            dt = datetime.strptime(ts_str.strip(), fmt)
+            return dt.isoformat()
+        except ValueError:
+            continue
+    return ts_str  # Return as-is if we can't parse it
 
 # Amount extraction: RM followed by number
 AMOUNT_PATTERN = re.compile(r'RM\s?(\d+(?:\.\d{1,2})?)', re.IGNORECASE)
@@ -91,11 +117,8 @@ def parse_whatsapp(file_bytes: bytes, **kwargs) -> list[RawExtractedEvent]:
 
 def _split_messages(text: str) -> list[dict]:
     """Split raw WhatsApp text into individual messages."""
-    # TODO (Person 3): Implement robust multi-pattern message splitting
-    # Handle different WhatsApp export formats (Android vs iOS, different locales)
     messages = []
 
-    # Simple line-by-line approach — improve this
     for line in text.split("\n"):
         for pattern in TIMESTAMP_PATTERNS:
             match = re.match(pattern, line)
@@ -105,7 +128,7 @@ def _split_messages(text: str) -> list[dict]:
                 parts = remainder.split(":", 1)
                 if len(parts) == 2:
                     messages.append({
-                        "timestamp": timestamp_str,  # TODO: parse to ISO 8601
+                        "timestamp": _parse_timestamp(timestamp_str),
                         "sender": parts[0].strip(),
                         "content": parts[1].strip(),
                     })

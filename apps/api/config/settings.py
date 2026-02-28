@@ -3,12 +3,18 @@ Django settings for Shadow Economy Mapper API.
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Add the project root so "packages.*" is importable from any entry point
+PROJECT_ROOT = str(BASE_DIR.parent.parent)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-insecure-key-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
