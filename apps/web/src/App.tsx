@@ -1,8 +1,31 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, Component } from 'react';
+import type { ReactNode } from 'react';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { BusinessProvider, useBusiness } from './hooks/useBusiness';
 import { Layout } from './components/Layout';
+
+class RouteErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex flex-col items-center justify-center h-64 gap-3 text-center px-4">
+          <p className="text-gray-700 font-medium">This page failed to load.</p>
+          <p className="text-gray-400 text-sm">{(this.state.error as Error).message}</p>
+          <button
+            onClick={() => { this.setState({ error: null }); window.location.reload(); }}
+            className="text-sm text-primary-600 underline"
+          >
+            Reload page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const VerifyPage = lazy(() => import('./pages/VerifyPage').then(m => ({ default: m.VerifyPage })));
@@ -52,6 +75,7 @@ export function App() {
     <BrowserRouter>
       <AuthProvider>
         <BusinessProvider>
+          <RouteErrorBoundary>
           <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes */}
@@ -121,6 +145,7 @@ export function App() {
             />
           </Routes>
           </Suspense>
+          </RouteErrorBoundary>
         </BusinessProvider>
       </AuthProvider>
     </BrowserRouter>
