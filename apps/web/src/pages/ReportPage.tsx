@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getReportDetail } from '../lib/services';
+import { getReportDetail, generateReport } from '../lib/services';
 import { ScoreBreakdown } from '../components/ScoreBreakdown';
 import type { Report, ScoreBreakdown as ScoreBreakdownType } from '../types';
 import { Download, ArrowLeft, FileText, Calendar, Clock, Link2 } from 'lucide-react';
@@ -10,6 +10,8 @@ export function ReportPage() {
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -45,6 +47,22 @@ export function ReportPage() {
   const snapshot = report.data_snapshot ?? {};
   const breakdown = snapshot.breakdown as ScoreBreakdownType | undefined;
   const score = snapshot.score as number | undefined;
+
+  async function handleRegenerate() {
+    if (!report) return;
+    setRegenerating(true);
+    setRegenError('');
+    try {
+      await generateReport(report.business);
+      // Re-fetch this report to pick up the new pdf_url
+      const updated = await getReportDetail(report.id);
+      setReport(updated);
+    } catch {
+      setRegenError('Failed to generate PDF. Please try again.');
+    } finally {
+      setRegenerating(false);
+    }
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -119,12 +137,12 @@ export function ReportPage() {
       )}
 
       {/* Download Report */}
-      {report.pdf_url && (
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-semibold mb-1">Download Report</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            Download a copy of this report to share directly with verifiers (banks, NGOs, government agencies).
-          </p>
+      <div className="bg-white rounded-xl shadow p-6">
+        <h2 className="text-lg font-semibold mb-1">Download Report</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Download a copy of this report to share directly with verifiers (banks, NGOs, government agencies).
+        </p>
+        {report.pdf_url ? (
           <a
             href={report.pdf_url}
             target="_blank"
@@ -134,8 +152,21 @@ export function ReportPage() {
             <Download size={16} />
             Download PDF Report
           </a>
-        </div>
-      )}
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-amber-600">PDF not yet generated for this report.</p>
+            <button
+              onClick={handleRegenerate}
+              disabled={regenerating}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <Download size={16} />
+              {regenerating ? 'Generating PDF…' : 'Generate PDF'}
+            </button>
+            {regenError && <p className="text-sm text-red-500">{regenError}</p>}
+          </div>
+        )}
+      </div>
 
       {/* Share Link — Coming Soon */}
       <div className="bg-white rounded-xl shadow p-6 opacity-60">
