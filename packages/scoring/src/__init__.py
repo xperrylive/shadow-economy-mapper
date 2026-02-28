@@ -14,5 +14,6 @@ All functions are PURE — they receive data and return results, no DB calls.
 from .types import CredibilityScore, InsightCard, LedgerEntryInput
 from .credibility.score_engine import compute_score
 from .insights.insights_engine import generate_insights
+from .narrative.narrative_generator import generate_narrative
 
-__all__ = ["compute_score", "generate_insights"]
+__all__ = ["compute_score", "generate_insights", "generate_narrative"]

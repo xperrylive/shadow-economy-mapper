@@ -40,7 +40,7 @@ def compute_and_save_score(business: BusinessProfile) -> CredibilityScore:
     entry_dicts = [_entry_to_dict(e) for e in entries]
 
     # Deferred import — raises ImportError when package not merged yet.
-    from packages.scoring.src import compute_score, generate_insights  # noqa: PLC0415
+    from packages.scoring.src import compute_score, generate_insights, generate_narrative  # noqa: PLC0415
 
     raw_score = compute_score(entry_dicts)
     raw_insights = generate_insights(entry_dicts)
@@ -56,11 +56,20 @@ def compute_and_save_score(business: BusinessProfile) -> CredibilityScore:
 
     insights_list = [_insight_to_dict(i) for i in (raw_insights or [])]
 
+    # Generate LLM narrative — stored in breakdown JSON, fails silently.
+    breakdown_dict = dict(breakdown) if hasattr(breakdown, "items") else {}
+    try:
+        narrative = generate_narrative(raw_score, entry_dicts)
+        if narrative:
+            breakdown_dict["narrative"] = narrative
+    except Exception as exc:
+        logger.warning("Narrative generation failed, skipping: %s", exc)
+
     score = CredibilityScore.objects.create(
         business=business,
         score=int(score_value),
         confidence_level=confidence_level,
-        breakdown=dict(breakdown) if hasattr(breakdown, "items") else {},
+        breakdown=breakdown_dict,
         flags=list(flags),
         insights=insights_list,
     )
