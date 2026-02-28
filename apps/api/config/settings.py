@@ -46,23 +46,20 @@ MIDDLEWARE = [
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-# --- Database (Supabase PostgreSQL) ---
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": os.getenv("SUPABASE_DB_PASSWORD", ""),
-        "HOST": os.getenv("SUPABASE_DB_HOST", "localhost"),
-        "PORT": os.getenv("SUPABASE_DB_PORT", "5432"),
-    }
-}
+# --- Database (Supabase PostgreSQL, fallback to SQLite for local dev) ---
+SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL", "")
 
-# If full DB URL is provided, use it via dj-database-url
-SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL")
-if SUPABASE_DB_URL:
+if SUPABASE_DB_URL and "your-project" not in SUPABASE_DB_URL:
     import dj_database_url
-    DATABASES["default"] = dj_database_url.parse(SUPABASE_DB_URL)
+    DATABASES = {"default": dj_database_url.parse(SUPABASE_DB_URL)}
+else:
+    # Local dev fallback — SQLite
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # --- Supabase Storage ---
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
