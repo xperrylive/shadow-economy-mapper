@@ -152,13 +152,21 @@ def _build_story(business, score, report_type, base) -> list:
     ]))
     story.append(score_tbl)
 
-    # Breakdown table
+    # Narrative (LLM-generated summary) — shown before breakdown
     breakdown = score.breakdown or {}
+    narrative = breakdown.get("narrative", "")
+    if narrative:
+        story.append(Paragraph("Summary", section_s))
+        story.append(Paragraph(narrative, body_s))
+
+    # Breakdown table
     if breakdown:
         story.append(Paragraph("Score Breakdown", section_s))
         rows = [["Component", "Points"]]
         seen: set = set()
         for key, val in breakdown.items():
+            if key == "narrative":
+                continue  # skip the narrative string from the table
             display = _BREAKDOWN_LABELS.get(key, key.replace("_", " ").title())
             if display in seen:
                 continue

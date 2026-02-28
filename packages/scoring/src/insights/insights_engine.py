@@ -164,12 +164,101 @@ def _compute_coverage(entries: list[LedgerEntryInput]) -> InsightCard | None:
     )
 
 
+# Channels considered "high confidence" (structured data sources)
+_HIGH_CONFIDENCE_CHANNELS = {"bank", "tng", "grabfood", "shopee", "foodpanda", "lazada"}
+# Channels that are low confidence on their own
+_LOW_CONFIDENCE_CHANNELS = {"whatsapp", "telegram", "instagram", "manual", "other"}
+
+
 def _suggest_improvements(entries: list[LedgerEntryInput]) -> InsightCard | None:
-    """Suggest what the user can do to improve their score."""
-    # TODO (Person 4): Implement smart recommendations
+    """Suggest the single most impactful action the user can take to improve their score."""
+    channels = set(e["channel"] for e in entries)
+    high_conf_channels = channels & _HIGH_CONFIDENCE_CHANNELS
+    low_conf_channels = channels & _LOW_CONFIDENCE_CHANNELS
+
+    # Check recency — is the most recent entry older than 30 days?
+    times = [datetime.fromisoformat(e["event_time"].replace("Z", "+00:00")) for e in entries]
+    most_recent = max(times)
+    days_since_last = (datetime.now(tz=most_recent.tzinfo) - most_recent).days
+    stale = days_since_last > 30
+
+    avg_confidence = sum(e["confidence"] for e in entries) / len(entries)
+
+    # Priority 1: No high-confidence sources at all
+    if not high_conf_channels:
+        return InsightCard(
+            type="recommendation",
+            title="Add a bank or e-wallet statement",
+            description=(
+                "Your evidence is currently from chat or manual entries only. "
+                "Uploading a Maybank, CIMB, or TNG e-wallet statement adds a "
+                "high-confidence source and can boost your score by 15–20 points."
+            ),
+            data={"missing": "high_confidence_source"},
+        )
+
+    # Priority 2: Only one channel total
+    if len(channels) == 1:
+        channel = next(iter(channels))
+        return InsightCard(
+            type="recommendation",
+            title="Add a second evidence source",
+            description=(
+                f"You only have evidence from {channel}. "
+                "Adding a second source (e.g. WhatsApp chat + TNG statement) "
+                "enables cross-verification and can add up to 15 points."
+            ),
+            data={"current_channels": list(channels)},
+        )
+
+    # Priority 3: Data is stale
+    if stale:
+        return InsightCard(
+            type="recommendation",
+            title="Your evidence is out of date",
+            description=(
+                f"Your most recent entry is {days_since_last} days old. "
+                "Upload recent activity to show your business is still operating — "
+                "lenders want to see current income, not just historical data."
+            ),
+            data={"days_since_last_entry": days_since_last},
+        )
+
+    # Priority 4: Low average confidence (mostly screenshots/chat, no CSVs)
+    if avg_confidence < 0.6 and not any(
+        c in high_conf_channels for c in ("bank", "tng")
+    ):
+        return InsightCard(
+            type="recommendation",
+            title="Replace screenshots with CSV exports",
+            description=(
+                "Most of your evidence is from screenshots or chats, which have lower confidence. "
+                "Download a CSV export directly from GrabFood, Shopee, or your e-wallet app "
+                "for a more reliable data source."
+            ),
+            data={"avg_confidence": round(avg_confidence, 2)},
+        )
+
+    # Priority 5: Only chat/manual, no platform data
+    if low_conf_channels and not high_conf_channels - {"bank", "tng"}:
+        return InsightCard(
+            type="recommendation",
+            title="Add your delivery platform data",
+            description=(
+                "You have bank/e-wallet data but no platform exports. "
+                "Adding a GrabFood or Shopee CSV export links your orders "
+                "to your payment records and strengthens cross-source verification."
+            ),
+            data={"suggestion": "platform_csv"},
+        )
+
+    # All good
     return InsightCard(
         type="recommendation",
-        title="Boost your score",
-        description="Upload a bank or e-wallet statement to add a high-confidence source. This can increase your score significantly.",
-        data=None,
+        title="Strong evidence coverage",
+        description=(
+            f"You have {len(channels)} evidence sources covering both platform and payment data. "
+            "Keep uploading regularly to maintain a current and credible financial record."
+        ),
+        data={"channel_count": len(channels)},
     )
