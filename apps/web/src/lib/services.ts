@@ -164,7 +164,7 @@ export async function generateReport(
   const { data } = await api.post<GenerateReportResponse>('/reports/generate/', {
     business_id: businessId,
     report_type: reportType,
-  });
+  }, { timeout: 60000 }); // 60s — PDF build + Supabase upload can be slow
   return data;
 }
 
