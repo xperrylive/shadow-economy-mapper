@@ -18,8 +18,10 @@ import type {
 // ─── Business Profiles ───────────────────────────────────
 
 export async function getBusinesses(): Promise<BusinessProfile[]> {
-  const { data } = await api.get<BusinessProfile[]>('/auth/businesses/');
-  return data;
+  const { data } = await api.get<BusinessProfile[] | { results: BusinessProfile[] }>('/auth/businesses/');
+  // DRF returns a paginated { results: [] } shape by default
+  if (Array.isArray(data)) return data;
+  return data.results ?? [];
 }
 
 export async function createBusiness(payload: {
@@ -84,6 +86,7 @@ export async function uploadEvidence(
     formData,
     {
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000, // 60s — file uploads can be slow through Supabase storage
       onUploadProgress: (e) => {
         if (onProgress && e.total) {
           onProgress(Math.round((e.loaded * 100) / e.total));

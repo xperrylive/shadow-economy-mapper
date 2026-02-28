@@ -60,8 +60,15 @@ def process_evidence_upload(
     Returns:
         The Evidence instance reflecting its final status.
     """
-    # --- Step 1: Upload to storage ---
-    file_url = upload_evidence_file(file_bytes, original_filename, str(business.id), content_type)
+    # --- Step 1: Upload to storage (optional — skipped when Supabase is unconfigured) ---
+    file_url = ""
+    try:
+        file_url = upload_evidence_file(file_bytes, original_filename, str(business.id), content_type)
+    except Exception as exc:
+        logger.warning(
+            "Storage upload skipped for %s (Supabase may not be configured): %s",
+            original_filename, exc,
+        )
 
     # --- Step 2: Create Evidence (UPLOADED) ---
     evidence = Evidence.objects.create(
