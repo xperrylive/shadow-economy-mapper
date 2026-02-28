@@ -73,19 +73,58 @@ def compute_score(entries: list[LedgerEntryInput]) -> CredibilityScore:
 
 
 def _compute_activity_score(entries: list[LedgerEntryInput]) -> float:
-    """Score based on volume and frequency of activity. Max 30."""
-    # TODO (Person 4): Implement
-    # Consider: total transaction count, average per week, regularity
-    count = len(entries)
-    if count >= 100:
-        return 30.0
-    if count >= 50:
-        return 25.0
-    if count >= 20:
-        return 18.0
-    if count >= 5:
-        return 10.0
-    return 3.0
+    """
+    Score based on active weeks and average transactions per active week. Max 30.
+
+    Split into two equal halves:
+      - Active weeks score  (0-15): how many distinct weeks have any activity
+      - Frequency score     (0-15): average transactions per active week
+
+    This way a business with 100 entries in a single week scores lower than
+    one with 50 entries spread consistently over 6 months.
+    """
+    if not entries:
+        return 0.0
+
+    # Count distinct active weeks
+    active_weeks: set[tuple[int, int]] = set()
+    for e in entries:
+        dt = datetime.fromisoformat(e["event_time"].replace("Z", "+00:00"))
+        cal = dt.isocalendar()
+        active_weeks.add((cal.year, cal.week))
+
+    n_active_weeks = len(active_weeks)
+    avg_per_week = len(entries) / n_active_weeks
+
+    # Active weeks score (0-15)
+    if n_active_weeks >= 26:       # 6+ months
+        week_score = 15.0
+    elif n_active_weeks >= 13:     # 3-6 months
+        week_score = 13.0
+    elif n_active_weeks >= 8:      # 2-3 months
+        week_score = 11.0
+    elif n_active_weeks >= 4:      # 1-2 months
+        week_score = 8.0
+    elif n_active_weeks >= 2:
+        week_score = 5.0
+    else:
+        week_score = 2.0
+
+    # Frequency score (0-15): avg transactions per active week
+    if avg_per_week >= 20:
+        freq_score = 15.0
+    elif avg_per_week >= 10:
+        freq_score = 13.0
+    elif avg_per_week >= 5:
+        freq_score = 10.0
+    elif avg_per_week >= 3:
+        freq_score = 7.0
+    elif avg_per_week >= 1:
+        freq_score = 4.0
+    else:
+        freq_score = 2.0
+
+    return round(week_score + freq_score, 1)
 
 
 def _compute_consistency_score(entries: list[LedgerEntryInput]) -> float:
