@@ -4,15 +4,16 @@ Supabase JWT Authentication for Django REST Framework.
 Validates the JWT token from Supabase Auth and maps it to a Django user.
 """
 
-import jwt
 import os
+import json
+import urllib.request
 from django.contrib.auth.models import User
 from rest_framework import authentication, exceptions
 
 
 class SupabaseAuthentication(authentication.BaseAuthentication):
     """
-    Authenticate requests using Supabase JWT tokens.
+    Authenticate requests using Supabase JWT tokens via network call.
 
     Expects header: Authorization: Bearer <supabase-jwt>
     """
@@ -24,22 +25,30 @@ class SupabaseAuthentication(authentication.BaseAuthentication):
 
         token = auth_header.split("Bearer ")[1]
 
-        try:
-            # Supabase JWTs are signed with the JWT secret from your project settings
-            payload = jwt.decode(
-                token,
-                os.getenv("SUPABASE_JWT_SECRET", ""),
-                algorithms=["HS256"],
-                audience="authenticated",
-            )
-        except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed("Token has expired.")
-        except jwt.InvalidTokenError:
-            raise exceptions.AuthenticationFailed("Invalid token.")
+        supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
+        anon_key = os.getenv("SUPABASE_ANON_KEY", "")
 
-        # Get or create Django user from Supabase user ID
-        supabase_user_id = payload.get("sub")
-        email = payload.get("email", "")
+        if not supabase_url or not anon_key:
+            raise exceptions.AuthenticationFailed("Server missing Supabase credentials.")
+
+        try:
+            req = urllib.request.Request(
+                f"{supabase_url}/auth/v1/user",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "apikey": anon_key,
+                },
+            )
+            with urllib.request.urlopen(req) as response:
+                if response.status != 200:
+                    raise exceptions.AuthenticationFailed("Invalid or expired token.")
+                user_data = json.loads(response.read().decode())
+        except Exception as e:
+            print(f"Supabase network auth error: {e}")
+            raise exceptions.AuthenticationFailed("Token validation failed.")
+
+        supabase_user_id = user_data.get("id")
+        email = user_data.get("email", "")
 
         if not supabase_user_id:
             raise exceptions.AuthenticationFailed("Token missing user ID.")
@@ -49,4 +58,4 @@ class SupabaseAuthentication(authentication.BaseAuthentication):
             defaults={"email": email},
         )
 
-        return (user, payload)
+        return (user, user_data)
