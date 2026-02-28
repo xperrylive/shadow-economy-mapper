@@ -196,7 +196,7 @@ export function LedgerPage() {
                         </span>
                       </td>
                       <td className="px-6 py-3 text-right font-medium">
-                        {entry.currency} {entry.amount.toFixed(2)}
+                        {entry.currency} {Number(entry.amount).toFixed(2)}
                       </td>
                       <td className="px-6 py-3 text-right">
                         <span className={`text-xs font-medium ${
