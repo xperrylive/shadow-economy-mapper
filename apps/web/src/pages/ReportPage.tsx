@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getReportDetail } from '../lib/services';
-import { ShareControls } from '../components/ShareControls';
 import { ScoreBreakdown } from '../components/ScoreBreakdown';
 import type { Report, ScoreBreakdown as ScoreBreakdownType } from '../types';
-import { Download, ArrowLeft, FileText, Calendar } from 'lucide-react';
+import { Download, ArrowLeft, FileText, Calendar, Clock, Link2 } from 'lucide-react';
 
 export function ReportPage() {
   const { id } = useParams<{ id: string }>();
@@ -119,13 +118,44 @@ export function ReportPage() {
         </div>
       )}
 
-      {/* Share Controls */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Share This Report</h2>
+      {/* Download Report */}
+      {report.pdf_url && (
+        <div className="bg-white rounded-xl shadow p-6">
+          <h2 className="text-lg font-semibold mb-1">Download Report</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Download a copy of this report to share directly with verifiers (banks, NGOs, government agencies).
+          </p>
+          <a
+            href={report.pdf_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition"
+          >
+            <Download size={16} />
+            Download PDF Report
+          </a>
+        </div>
+      )}
+
+      {/* Share Link — Coming Soon */}
+      <div className="bg-white rounded-xl shadow p-6 opacity-60">
+        <div className="flex items-center gap-3 mb-1">
+          <h2 className="text-lg font-semibold">Share This Report</h2>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+            <Clock size={11} />
+            Coming Soon
+          </span>
+        </div>
         <p className="text-sm text-gray-500 mb-4">
-          Generate a secure link that verifiers (banks, NGOs, government) can use to view this report.
+          Generate a secure, time-limited link that verifiers can open directly in their browser.
         </p>
-        <ShareControls reportId={report.id} />
+        <button
+          disabled
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-200 text-gray-400 text-sm font-medium rounded-lg cursor-not-allowed"
+        >
+          <Link2 size={16} />
+          Create Share Link
+        </button>
       </div>
     </div>
   );
