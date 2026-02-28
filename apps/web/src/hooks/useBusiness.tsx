@@ -1,19 +1,7 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import type { BusinessProfile } from '../types';
-
-// ── DEV BYPASS: Remove and restore API calls when backend is ready ──
-const DEV_BYPASS_BUSINESS = true;
-
-const MOCK_BUSINESS: BusinessProfile = {
-  id: 'biz-001',
-  name: "Kak Lina's Kuih",
-  category: 'food_home',
-  location: 'Shah Alam, Selangor',
-  channels: ['whatsapp', 'grabfood', 'cash'],
-  created_at: '2026-01-15T08:00:00Z',
-  updated_at: '2026-02-20T10:00:00Z',
-};
-// ── END DEV BYPASS ──
+import { getBusinesses } from '../lib/services';
+import { useAuth } from './useAuth';
 
 interface BusinessContextType {
   businesses: BusinessProfile[];
@@ -26,17 +14,40 @@ interface BusinessContextType {
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined);
 
 export function BusinessProvider({ children }: { children: ReactNode }) {
-  const [businesses] = useState<BusinessProfile[]>(
-    DEV_BYPASS_BUSINESS ? [MOCK_BUSINESS] : []
-  );
-  const [currentBusiness, setCurrentBusiness] = useState<BusinessProfile | null>(
-    DEV_BYPASS_BUSINESS ? MOCK_BUSINESS : null
-  );
-  const [loading] = useState(false);
+  const { user } = useAuth();
+  const [businesses, setBusinesses] = useState<BusinessProfile[]>([]);
+  const [currentBusiness, setCurrentBusiness] = useState<BusinessProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    // No-op in dev bypass
-  }, []);
+    if (!user) {
+      setBusinesses([]);
+      setCurrentBusiness(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await getBusinesses();
+      setBusinesses(data);
+      if (data.length > 0) {
+        // preserve current selection if it still exists, otherwise take first
+        const exists = data.find(b => b.id === currentBusiness?.id);
+        setCurrentBusiness(exists || data[0]);
+      } else {
+        setCurrentBusiness(null);
+      }
+    } catch (err) {
+      console.error('Failed to fetch businesses:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, currentBusiness?.id]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   return (
     <BusinessContext.Provider value={{ businesses, currentBusiness, setCurrentBusiness, loading, refresh }}>
