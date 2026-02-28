@@ -1,9 +1,9 @@
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Inter font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* Base styles */
 @layer base {
@@ -33,6 +33,7 @@
 
 /* Component styles */
 @layer components {
+
   /* Smooth transitions */
   .transition-smooth {
     transition: all 0.2s ease-in-out;
@@ -47,17 +48,20 @@
   .btn-base {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-smooth;
     @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-    min-height: 44px; /* Touch target size */
+    min-height: 44px;
+    /* Touch target size */
   }
 }
 
 /* Utility styles */
 @layer utilities {
+
   /* Animation utilities */
   @keyframes fadeIn {
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -68,6 +72,7 @@
       transform: translateY(10px);
       opacity: 0;
     }
+
     to {
       transform: translateY(0);
       opacity: 1;
@@ -75,9 +80,12 @@
   }
 
   @keyframes pulse-subtle {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.8;
     }
@@ -87,6 +95,7 @@
     from {
       transform: rotate(0deg);
     }
+
     to {
       transform: rotate(360deg);
     }
@@ -110,6 +119,7 @@
 
   /* Respect reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
