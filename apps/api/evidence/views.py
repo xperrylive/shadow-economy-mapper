@@ -28,7 +28,11 @@ class EvidenceViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Evidence.objects.filter(business__user=self.request.user)
+        qs = Evidence.objects.filter(business__user=self.request.user)
+        business_id = self.request.query_params.get("business_id")
+        if business_id:
+            qs = qs.filter(business_id=business_id)
+        return qs
 
     @action(detail=False, methods=["post"])
     def upload(self, request):
@@ -122,7 +126,11 @@ class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return CredibilityScore.objects.filter(business__user=self.request.user)
+        qs = CredibilityScore.objects.filter(business__user=self.request.user)
+        business_id = self.request.query_params.get("business_id")
+        if business_id:
+            qs = qs.filter(business_id=business_id)
+        return qs
 
     @action(detail=False, methods=["post"])
     def compute(self, request):
