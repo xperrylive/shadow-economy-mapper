@@ -28,13 +28,19 @@ export function ReportsListPage() {
     setGenerating(true);
     try {
       await generateReport(currentBusiness.id);
-      // Refresh list after brief delay
-      setTimeout(async () => {
+      // Poll until the new report appears in the list (max 5 attempts, 1s apart)
+      const prevCount = reports.length;
+      for (let i = 0; i < 5; i++) {
+        await new Promise(r => setTimeout(r, 1000));
         const res = await getReports(currentBusiness.id);
-        setReports(res.results);
-        setGenerating(false);
-      }, 2000);
+        if (res.results.length > prevCount) {
+          setReports(res.results);
+          break;
+        }
+      }
     } catch {
+      // ignore
+    } finally {
       setGenerating(false);
     }
   };

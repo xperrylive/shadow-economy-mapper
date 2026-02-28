@@ -58,13 +58,19 @@ export function DashboardPage() {
     setComputing(true);
     try {
       await computeScore(currentBusiness.id);
-      // Wait briefly for computation, then refresh
-      setTimeout(async () => {
+      // Poll until the backend returns a fresher score (max 5 attempts, 1s apart)
+      const prevComputedAt = score?.computed_at;
+      for (let i = 0; i < 5; i++) {
+        await new Promise(r => setTimeout(r, 1000));
         const res = await getScores(currentBusiness.id);
-        if (res.results.length > 0) setScore(res.results[0]);
-        setComputing(false);
-      }, 2000);
+        if (res.results.length > 0 && res.results[0].computed_at !== prevComputedAt) {
+          setScore(res.results[0]);
+          break;
+        }
+      }
     } catch {
+      // ignore
+    } finally {
       setComputing(false);
     }
   };

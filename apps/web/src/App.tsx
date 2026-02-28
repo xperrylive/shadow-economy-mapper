@@ -1,15 +1,25 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { BusinessProvider, useBusiness } from './hooks/useBusiness';
 import { Layout } from './components/Layout';
-import { LoginPage } from './pages/LoginPage';
-import { OnboardingPage } from './pages/OnboardingPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { UploadPage } from './pages/UploadPage';
-import { ReportPage } from './pages/ReportPage';
-import { ReportsListPage } from './pages/ReportsListPage';
-import { VerifyPage } from './pages/VerifyPage';
-import { LedgerPage } from './pages/LedgerPage';
+
+const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const VerifyPage = lazy(() => import('./pages/VerifyPage').then(m => ({ default: m.VerifyPage })));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage').then(m => ({ default: m.OnboardingPage })));
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const UploadPage = lazy(() => import('./pages/UploadPage').then(m => ({ default: m.UploadPage })));
+const ReportsListPage = lazy(() => import('./pages/ReportsListPage').then(m => ({ default: m.ReportsListPage })));
+const ReportPage = lazy(() => import('./pages/ReportPage').then(m => ({ default: m.ReportPage })));
+const LedgerPage = lazy(() => import('./pages/LedgerPage').then(m => ({ default: m.LedgerPage })));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -42,6 +52,7 @@ export function App() {
     <BrowserRouter>
       <AuthProvider>
         <BusinessProvider>
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -109,6 +120,7 @@ export function App() {
               }
             />
           </Routes>
+          </Suspense>
         </BusinessProvider>
       </AuthProvider>
     </BrowserRouter>
