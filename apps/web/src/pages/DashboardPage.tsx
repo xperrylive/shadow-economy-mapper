@@ -19,7 +19,11 @@ export function DashboardPage() {
   const [generating, setGenerating] = useState(false);
 
   const fetchData = useCallback(async () => {
-    if (!currentBusiness) return;
+    if (!currentBusiness) {
+      setLoadingEvidence(false);
+      setLoadingScore(false);
+      return;
+    }
     const bizId = currentBusiness.id;
 
     setLoadingEvidence(true);
@@ -37,11 +41,13 @@ export function DashboardPage() {
       if (scoresRes.status === 'fulfilled' && scoresRes.value.results.length > 0) {
         setScore(scoresRes.value.results[0]);
       }
+    } catch {
+      // API errors handled gracefully - show empty state
     } finally {
       setLoadingEvidence(false);
       setLoadingScore(false);
     }
-  }, [currentBusiness]);
+  }, [currentBusiness?.id]);
 
   useEffect(() => {
     fetchData();

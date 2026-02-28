@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
@@ -17,21 +17,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
+  const userIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    // Use only onAuthStateChange which emits INITIAL_SESSION on first call
+    // This avoids the double-fire from calling both getSession() and onAuthStateChange
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      const newUserId = newSession?.user?.id ?? null;
+
+      // Always update session (for fresh tokens)
+      setSession(newSession);
+
+      // Only update user state if the user actually changed (by ID),
+      // not on token refreshes which create new object references
+      if (newUserId !== userIdRef.current) {
+        userIdRef.current = newUserId;
+        setUser(newSession?.user ?? null);
+      }
+
+      if (!initializedRef.current) {
+        initializedRef.current = true;
+        setLoading(false);
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Fallback: if onAuthStateChange doesn't fire within 2s, stop loading
+    const timeout = setTimeout(() => {
+      if (!initializedRef.current) {
+        initializedRef.current = true;
+        setLoading(false);
+      }
+    }, 2000);
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

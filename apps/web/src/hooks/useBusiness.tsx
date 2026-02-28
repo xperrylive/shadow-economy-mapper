@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import type { BusinessProfile } from '../types';
 import { getBusinesses } from '../lib/services';
 import { useAuth } from './useAuth';
@@ -18,6 +18,10 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   const [businesses, setBusinesses] = useState<BusinessProfile[]>([]);
   const [currentBusiness, setCurrentBusiness] = useState<BusinessProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const currentBusinessRef = useRef(currentBusiness);
+
+  // Keep ref in sync without triggering re-renders
+  currentBusinessRef.current = currentBusiness;
 
   const refresh = useCallback(async () => {
     if (!user) {
@@ -31,23 +35,26 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     try {
       const data = await getBusinesses();
       setBusinesses(data);
-      if (data.length > 0) {
-        // preserve current selection if it still exists, otherwise take first
-        const exists = data.find(b => b.id === currentBusiness?.id);
-        setCurrentBusiness(exists || data[0]);
-      } else {
-        setCurrentBusiness(null);
+      if (data.length > 0 && !currentBusinessRef.current) {
+        // Only set current business if none is selected
+        setCurrentBusiness(data[0]);
       }
     } catch (err) {
       console.error('Failed to fetch businesses:', err);
     } finally {
       setLoading(false);
     }
-  }, [user, currentBusiness?.id]);
+  }, [user]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (user) {
+      refresh();
+    } else {
+      setBusinesses([]);
+      setCurrentBusiness(null);
+      setLoading(false);
+    }
+  }, [user, refresh]);
 
   return (
     <BusinessContext.Provider value={{ businesses, currentBusiness, setCurrentBusiness, loading, refresh }}>

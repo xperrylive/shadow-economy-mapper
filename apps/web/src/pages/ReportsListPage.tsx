@@ -12,13 +12,16 @@ export function ReportsListPage() {
   const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
-    if (!currentBusiness) return;
+    if (!currentBusiness) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     getReports(currentBusiness.id)
       .then((res) => setReports(res.results))
-      .catch(() => {})
+      .catch(() => setReports([]))
       .finally(() => setLoading(false));
-  }, [currentBusiness]);
+  }, [currentBusiness?.id]);
 
   const handleGenerate = async () => {
     if (!currentBusiness) return;

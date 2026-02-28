@@ -16,10 +16,11 @@ export function LoginPage() {
     try {
       if (isSignUp) {
         await signUp(email, password);
+        navigate('/onboarding');
       } else {
         await signIn(email, password);
+        navigate('/');
       }
-      navigate('/');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     }

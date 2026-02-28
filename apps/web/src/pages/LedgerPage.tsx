@@ -39,7 +39,10 @@ export function LedgerPage() {
   const [showFilters, setShowFilters] = useState(false);
 
   const fetchLedger = useCallback(async () => {
-    if (!currentBusiness) return;
+    if (!currentBusiness) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const res = await getLedger({
@@ -55,10 +58,13 @@ export function LedgerPage() {
       setHasPrev(!!res.previous);
     } catch {
       setEntries([]);
+      setTotalCount(0);
+      setHasNext(false);
+      setHasPrev(false);
     } finally {
       setLoading(false);
     }
-  }, [currentBusiness, dateFrom, dateTo, channel, page]);
+  }, [currentBusiness?.id, dateFrom, dateTo, channel, page]);
 
   useEffect(() => {
     fetchLedger();
