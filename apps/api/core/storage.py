@@ -56,12 +56,24 @@ def upload_evidence_file(
         )
 
     client = _client()
+    _ensure_bucket(client, EVIDENCE_BUCKET, public=False)
     client.storage.from_(EVIDENCE_BUCKET).upload(
         path=dest_path,
         file=file_bytes,
         file_options={"content-type": content_type},
     )
     return client.storage.from_(EVIDENCE_BUCKET).get_public_url(dest_path)
+
+
+def _ensure_bucket(client, bucket_name: str, public: bool = False) -> None:
+    """Create *bucket_name* if it does not already exist (idempotent)."""
+    try:
+        client.storage.create_bucket(bucket_name, options={"public": public})
+    except Exception as exc:
+        # Supabase raises when the bucket already exists — that's fine.
+        msg = str(exc).lower()
+        if "already exists" not in msg and "duplicate" not in msg:
+            raise
 
 
 def upload_report_pdf(pdf_bytes: bytes, business_id: str, report_id: str) -> str:
@@ -80,6 +92,7 @@ def upload_report_pdf(pdf_bytes: bytes, business_id: str, report_id: str) -> str
     """
     dest_path = f"{business_id}/{report_id}.pdf"
     client = _client()
+    _ensure_bucket(client, REPORTS_BUCKET, public=True)
     client.storage.from_(REPORTS_BUCKET).upload(
         path=dest_path,
         file=pdf_bytes,
