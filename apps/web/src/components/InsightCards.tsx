@@ -1,67 +1,63 @@
 import type { InsightCard } from '../types';
 import { TrendingUp, Calendar, Lightbulb, Layers, ChevronDown, ChevronUp } from 'lucide-react';
-import { LineChart, Line, PieChart, Pie, BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { useState } from 'react';
 
-const INSIGHT_CONFIG: Record<InsightCard['type'], { icon: typeof TrendingUp; bgColor: string; iconColor: string; chartType: 'line' | 'pie' | 'bar' | 'none' }> = {
+const INSIGHT_CONFIG: Record<InsightCard['type'], { icon: typeof TrendingUp; bgColor: string; iconColor: string; chartType: 'bar' | 'pie' | 'none' }> = {
   peak_day: { icon: Calendar, bgColor: 'bg-teal-50', iconColor: 'text-teal-600', chartType: 'bar' },
-  trend: { icon: TrendingUp, bgColor: 'bg-green-50', iconColor: 'text-green-600', chartType: 'line' },
+  trend: { icon: TrendingUp, bgColor: 'bg-green-50', iconColor: 'text-green-600', chartType: 'bar' },
   recommendation: { icon: Lightbulb, bgColor: 'bg-yellow-50', iconColor: 'text-yellow-600', chartType: 'none' },
-  coverage: { icon: Layers, bgColor: 'bg-purple-50', iconColor: 'text-purple-600', chartType: 'pie' },
+  coverage: { icon: Layers, bgColor: 'bg-purple-50', iconColor: 'text-purple-600', chartType: 'none' },
 };
 
 const COLORS = ['#0d9488', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-function generateMockChartData(type: InsightCard['type']) {
-  if (type === 'trend') {
+type ChartPoint = { label?: string; name?: string; value: number };
+
+function getChartData(insight: InsightCard): ChartPoint[] {
+  if (!insight.data) return [];
+
+  if (insight.type === 'peak_day') {
+    const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const DAY_SHORT  = ['Mon',    'Tue',     'Wed',       'Thu',      'Fri',    'Sat',      'Sun'];
+    const dayTotals = (insight.data.day_totals as Record<string, number>) ?? {};
+    return DAY_ORDER.map((day, i) => ({
+      label: DAY_SHORT[i],
+      value: dayTotals[day] ?? 0,
+    }));
+  }
+
+  if (insight.type === 'trend') {
     return [
-      { month: 'Jan', value: 45 },
-      { month: 'Feb', value: 52 },
-      { month: 'Mar', value: 48 },
-      { month: 'Apr', value: 61 },
-      { month: 'May', value: 58 },
-      { month: 'Jun', value: 67 },
+      { label: 'Prior 14d',  value: (insight.data.previous_total as number) ?? 0 },
+      { label: 'Recent 14d', value: (insight.data.recent_total   as number) ?? 0 },
     ];
   }
-  if (type === 'coverage') {
-    return [
-      { name: 'WhatsApp', value: 35 },
-      { name: 'Bank Statements', value: 25 },
-      { name: 'Platform CSVs', value: 20 },
-      { name: 'Manual Entries', value: 15 },
-      { name: 'Other', value: 5 },
-    ];
+
+  if (insight.type === 'coverage') {
+    const channels = (insight.data.channels as string[]) ?? [];
+    return channels.map(ch => ({ name: ch, value: 1 }));
   }
-  if (type === 'peak_day') {
-    return [
-      { day: 'Mon', transactions: 12 },
-      { day: 'Tue', transactions: 15 },
-      { day: 'Wed', transactions: 18 },
-      { day: 'Thu', transactions: 22 },
-      { day: 'Fri', transactions: 28 },
-      { day: 'Sat', transactions: 25 },
-      { day: 'Sun', transactions: 14 },
-    ];
-  }
+
   return [];
 }
 
-function InsightChart({ type, data }: { type: InsightCard['type']; data: any[] }) {
+function InsightChart({ type, data }: { type: InsightCard['type']; data: ChartPoint[] }) {
   const config = INSIGHT_CONFIG[type];
-  
+
   if (config.chartType === 'none' || data.length === 0) {
     return null;
   }
 
-  if (config.chartType === 'line') {
+  if (config.chartType === 'bar') {
     return (
       <ResponsiveContainer width="100%" height={120}>
-        <LineChart data={data}>
-          <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+        <BarChart data={data}>
+          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip />
-          <Line type="monotone" dataKey="value" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e' }} />
-        </LineChart>
+          <Tooltip formatter={(v: number) => [`RM ${v.toFixed(2)}`, 'Amount']} />
+          <Bar dataKey="value" fill="#0d9488" radius={[4, 4, 0, 0]} />
+        </BarChart>
       </ResponsiveContainer>
     );
   }
@@ -79,25 +75,12 @@ function InsightChart({ type, data }: { type: InsightCard['type']; data: any[] }
             paddingAngle={2}
             dataKey="value"
           >
-            {data.map((entry, index) => (
+            {data.map((_entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip />
         </PieChart>
-      </ResponsiveContainer>
-    );
-  }
-
-  if (config.chartType === 'bar') {
-    return (
-      <ResponsiveContainer width="100%" height={120}>
-        <BarChart data={data}>
-          <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip />
-          <Bar dataKey="transactions" fill="#0d9488" radius={[4, 4, 0, 0]} />
-        </BarChart>
       </ResponsiveContainer>
     );
   }
@@ -109,14 +92,13 @@ interface InsightCardsProps {
   insights: InsightCard[];
 }
 
-function InsightCardItem({ insight, index }: { insight: InsightCard; index: number }) {
+function InsightCardItem({ insight }: { insight: InsightCard; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const config = INSIGHT_CONFIG[insight.type] ?? INSIGHT_CONFIG.recommendation;
   const Icon = config.icon;
-  const chartData = generateMockChartData(insight.type);
-  
+  const chartData = getChartData(insight);
+
   // Check for significant changes (>20%)
-  const hasSignificantChange = insight.description.includes('increase') || insight.description.includes('decrease');
   const changePercentage = insight.description.match(/(\d+)%/)?.[1];
   const isSignificant = changePercentage && parseInt(changePercentage) > 20;
 
@@ -137,7 +119,7 @@ function InsightCardItem({ insight, index }: { insight: InsightCard; index: numb
               </span>
             )}
           </div>
-          
+
           <p className="text-gray-600 text-sm mt-1 leading-relaxed">{insight.description}</p>
 
           {/* Chart visualization */}
@@ -157,15 +139,15 @@ function InsightCardItem({ insight, index }: { insight: InsightCard; index: numb
                 {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 {expanded ? 'Show less' : 'Learn more'}
               </button>
-              
+
               {expanded && (
                 <div className="mt-2 text-xs text-gray-600 bg-white/70 p-3 rounded space-y-2">
                   <p>
-                    <strong>Why this matters:</strong> Consistent evidence from multiple sources 
+                    <strong>Why this matters:</strong> Consistent evidence from multiple sources
                     strengthens your credibility score and improves lender confidence.
                   </p>
                   <p>
-                    <strong>What to do:</strong> Upload evidence from different platforms and time periods 
+                    <strong>What to do:</strong> Upload evidence from different platforms and time periods
                     to show a complete picture of your business activity.
                   </p>
                 </div>
