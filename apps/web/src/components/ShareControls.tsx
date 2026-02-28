@@ -288,7 +288,7 @@ export function ShareControls({ reportId, businessName, onRevoke }: ShareControl
                   </li>
                 )}
                 <li className="flex items-start gap-2">
-                  <Clock size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Clock size={16} className="text-neutral-600 mt-0.5 flex-shrink-0" />
                   <span>Link expires in {expiryHours / 24} days</span>
                 </li>
               </ul>

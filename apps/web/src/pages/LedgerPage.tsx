@@ -17,7 +17,7 @@ const CHANNEL_LABELS: Record<Channel, string> = {
 };
 
 const EVENT_TYPE_COLORS: Record<string, string> = {
-  order: 'bg-blue-100 text-blue-700',
+  order: 'bg-teal-100 text-teal-700',
   payment: 'bg-green-100 text-green-700',
   payout: 'bg-purple-100 text-purple-700',
   refund: 'bg-red-100 text-red-700',

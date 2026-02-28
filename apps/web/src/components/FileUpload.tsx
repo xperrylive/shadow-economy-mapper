@@ -143,13 +143,13 @@ export function FileUpload({ onUpload, uploading, progress, result, onClearResul
   return (
     <div className="space-y-4">
       {/* Header with info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
         <div className="flex items-start gap-2">
-          <FileText size={18} className="text-blue-600 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-blue-900">
+          <FileText size={18} className="text-teal-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-teal-900">
             <p className="font-medium mb-1">Accepted formats</p>
-            <p className="text-blue-700">WhatsApp chats, CSV, PDF, images (PNG, JPG)</p>
-            <p className="text-blue-700 mt-1">Max file size: 10MB per file</p>
+            <p className="text-teal-700">WhatsApp chats, CSV, PDF, images (PNG, JPG)</p>
+            <p className="text-teal-700 mt-1">Max file size: 10MB per file</p>
           </div>
         </div>
       </div>

@@ -4,13 +4,13 @@ import { LineChart, Line, PieChart, Pie, BarChart, Bar, Cell, ResponsiveContaine
 import { useState } from 'react';
 
 const INSIGHT_CONFIG: Record<InsightCard['type'], { icon: typeof TrendingUp; bgColor: string; iconColor: string; chartType: 'line' | 'pie' | 'bar' | 'none' }> = {
-  peak_day: { icon: Calendar, bgColor: 'bg-blue-50', iconColor: 'text-blue-600', chartType: 'bar' },
+  peak_day: { icon: Calendar, bgColor: 'bg-teal-50', iconColor: 'text-teal-600', chartType: 'bar' },
   trend: { icon: TrendingUp, bgColor: 'bg-green-50', iconColor: 'text-green-600', chartType: 'line' },
   recommendation: { icon: Lightbulb, bgColor: 'bg-yellow-50', iconColor: 'text-yellow-600', chartType: 'none' },
   coverage: { icon: Layers, bgColor: 'bg-purple-50', iconColor: 'text-purple-600', chartType: 'pie' },
 };
 
-const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+const COLORS = ['#0d9488', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 function generateMockChartData(type: InsightCard['type']) {
   if (type === 'trend') {
@@ -96,7 +96,7 @@ function InsightChart({ type, data }: { type: InsightCard['type']; data: any[] }
           <XAxis dataKey="day" tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip />
-          <Bar dataKey="transactions" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="transactions" fill="#0d9488" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     );

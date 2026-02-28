@@ -22,7 +22,7 @@ const EVIDENCE_STATUS_CONFIG: Record<EvidenceStatus, StatusConfig> = {
   },
   EXTRACTED: { 
     label: 'Extracted', 
-    className: 'bg-blue-100 text-blue-700 border-blue-200',
+    className: 'bg-teal-100 text-teal-700 border-teal-200',
     icon: <Clock size={12} />
   },
   NORMALIZED: { 

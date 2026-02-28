@@ -14,26 +14,41 @@
 
 /**
  * Color Palettes
- * 
- * Primary (Blue): Trust and stability for financial credibility
+ *
+ * Primary (Teal): Warm trust and stability for financial credibility
+ * Accent (Amber/Gold): Warm highlights and call-to-action elements
  * Success (Green): Positive financial indicators, income, growth, high scores
  * Warning (Amber): Attention needed, cautions
  * Danger (Red): Critical issues, low scores, errors
- * Neutral (Gray): Text, backgrounds, borders
+ * Neutral (Stone/Warm Gray): Text, backgrounds, borders
  */
 export const colors = {
-  // Primary: Trust and stability (blue)
+  // Primary: Warm trust and stability (teal)
   primary: {
-    50: '#eff6ff',
-    100: '#dbeafe',
-    200: '#bfdbfe',
-    300: '#93c5fd',
-    400: '#60a5fa',
-    500: '#3b82f6',
-    600: '#2563eb',
-    700: '#1d4ed8',
-    800: '#1e40af',
-    900: '#1e3a8a',
+    50: '#f0fdfa',
+    100: '#ccfbf1',
+    200: '#99f6e4',
+    300: '#5eead4',
+    400: '#2dd4bf',
+    500: '#14b8a6',
+    600: '#0d9488',
+    700: '#0f766e',
+    800: '#115e59',
+    900: '#134e4a',
+  },
+
+  // Accent: Warm highlights (amber/gold)
+  accent: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    200: '#fde68a',
+    300: '#fcd34d',
+    400: '#fbbf24',
+    500: '#f59e0b',
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+    900: '#78350f',
   },
   
   // Success: Positive financial indicators (green)
@@ -78,18 +93,18 @@ export const colors = {
     900: '#7f1d1d',
   },
   
-  // Neutral: Text and backgrounds
+  // Neutral: Text and backgrounds (stone/warm gray)
   neutral: {
-    50: '#fafafa',
-    100: '#f5f5f5',
-    200: '#e5e5e5',
-    300: '#d4d4d4',
-    400: '#a3a3a3',
-    500: '#737373',
-    600: '#525252',
-    700: '#404040',
-    800: '#262626',
-    900: '#171717',
+    50: '#fafaf9',
+    100: '#f5f5f4',
+    200: '#e7e5e4',
+    300: '#d6d3d1',
+    400: '#a8a29e',
+    500: '#78716c',
+    600: '#57534e',
+    700: '#44403c',
+    800: '#292524',
+    900: '#1c1917',
   },
 } as const;
 

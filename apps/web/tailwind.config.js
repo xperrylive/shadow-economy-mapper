@@ -9,6 +9,7 @@ export default {
       // warning (attention needed), danger (critical issues), neutral (text/backgrounds)
       colors: {
         primary: colors.primary,
+        accent: colors.accent,
         success: colors.success,
         warning: colors.warning,
         danger: colors.danger,
