@@ -1,6 +1,25 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+
+// ── DEV BYPASS: Remove this block and restore Supabase auth when ready ──
+const DEV_BYPASS_AUTH = true;
+
+const MOCK_USER = {
+  id: 'dev-user-001',
+  email: 'dev@shadowecon.local',
+  app_metadata: {},
+  user_metadata: {},
+  aud: 'authenticated',
+  created_at: new Date().toISOString(),
+} as unknown as User;
+
+const MOCK_SESSION = {
+  access_token: 'dev-token',
+  refresh_token: 'dev-refresh',
+  user: MOCK_USER,
+  expires_at: Date.now() / 1000 + 86400,
+} as unknown as Session;
+// ── END DEV BYPASS ──
 
 interface AuthContextType {
   user: User | null;
@@ -14,39 +33,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user] = useState<User | null>(DEV_BYPASS_AUTH ? MOCK_USER : null);
+  const [session] = useState<Session | null>(DEV_BYPASS_AUTH ? MOCK_SESSION : null);
+  const [loading] = useState(false);
 
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+  const signIn = async (_email: string, _password: string) => {
+    // No-op in dev bypass
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+  const signUp = async (_email: string, _password: string) => {
+    // No-op in dev bypass
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // No-op in dev bypass
   };
 
   return (
