@@ -10,9 +10,6 @@ interface ExportData {
   validUntil: string;
 }
 
-/**
- * Export report data as CSV
- */
 export function exportAsCSV(data: ExportData): void {
   const { businessName, score, ledgerEntries, generatedAt } = data;
   
@@ -39,17 +36,11 @@ export function exportAsCSV(data: ExportData): void {
   downloadFile(csvContent, `${businessName}-report-${Date.now()}.csv`, 'text/csv');
 }
 
-/**
- * Export report data as JSON
- */
 export function exportAsJSON(data: ExportData): void {
   const jsonContent = JSON.stringify(data, null, 2);
   downloadFile(jsonContent, `${data.businessName}-report-${Date.now()}.json`, 'application/json');
 }
 
-/**
- * Helper function to trigger file download
- */
 function downloadFile(content: string, filename: string, mimeType: string): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);

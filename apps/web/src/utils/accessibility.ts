@@ -1,17 +1,3 @@
-/**
- * Accessibility Utilities
- * 
- * Functions for accessibility features:
- * - ARIA label generation
- * - Contrast ratio checking (WCAG 2.1 Level AA compliance)
- * - Focus management
- */
-
-/**
- * Generate ARIA label for score card based on score value
- * @param score - The credibility score (0-100)
- * @returns ARIA label describing the score
- */
 export function generateScoreAriaLabel(score: number): string {
   let level: string;
   
@@ -26,13 +12,6 @@ export function generateScoreAriaLabel(score: number): string {
   return `Credibility score: ${score} out of 100. ${level} confidence level.`;
 }
 
-/**
- * Generate ARIA label for evidence item
- * @param filename - The evidence filename
- * @param sourceType - The source type (e.g., 'whatsapp', 'csv', 'pdf')
- * @param status - The processing status
- * @returns ARIA label describing the evidence
- */
 export function generateEvidenceAriaLabel(
   filename: string,
   sourceType: string,
@@ -46,12 +25,6 @@ export function generateEvidenceAriaLabel(
   return `Evidence file: ${filename}, type: ${sourceType}, status: ${statusText}`;
 }
 
-/**
- * Generate ARIA label for file upload progress
- * @param filename - The file being uploaded
- * @param progress - Upload progress percentage (0-100)
- * @returns ARIA label describing upload progress
- */
 export function generateUploadProgressAriaLabel(
   filename: string,
   progress: number
@@ -65,12 +38,6 @@ export function generateUploadProgressAriaLabel(
   }
 }
 
-/**
- * Generate ARIA label for form validation error
- * @param fieldName - The field name
- * @param errorMessage - The error message
- * @returns ARIA label for the error
- */
 export function generateErrorAriaLabel(
   fieldName: string,
   errorMessage: string
@@ -78,11 +45,6 @@ export function generateErrorAriaLabel(
   return `Error in ${fieldName}: ${errorMessage}`;
 }
 
-/**
- * Convert hex color to RGB values
- * @param hex - Hex color string (e.g., '#ffffff' or 'ffffff')
- * @returns RGB values as [r, g, b] or null if invalid
- */
 function hexToRgb(hex: string): [number, number, number] | null {
   const cleaned = hex.replace('#', '');
   
@@ -101,14 +63,6 @@ function hexToRgb(hex: string): [number, number, number] | null {
   return [r, g, b];
 }
 
-/**
- * Calculate relative luminance of a color
- * Based on WCAG 2.1 formula
- * @param r - Red value (0-255)
- * @param g - Green value (0-255)
- * @param b - Blue value (0-255)
- * @returns Relative luminance (0-1)
- */
 function getRelativeLuminance(r: number, g: number, b: number): number {
   // Convert to 0-1 range
   const [rs, gs, bs] = [r, g, b].map(val => {
@@ -122,13 +76,6 @@ function getRelativeLuminance(r: number, g: number, b: number): number {
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
 }
 
-/**
- * Calculate contrast ratio between two colors
- * Based on WCAG 2.1 formula
- * @param color1 - First color (hex format)
- * @param color2 - Second color (hex format)
- * @returns Contrast ratio (1-21) or null if invalid colors
- */
 export function calculateContrastRatio(color1: string, color2: string): number | null {
   const rgb1 = hexToRgb(color1);
   const rgb2 = hexToRgb(color2);
@@ -146,13 +93,6 @@ export function calculateContrastRatio(color1: string, color2: string): number |
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/**
- * Check if contrast ratio meets WCAG 2.1 Level AA requirements
- * @param color1 - First color (hex format)
- * @param color2 - Second color (hex format)
- * @param isLargeText - Whether the text is large (18pt+ or 14pt+ bold)
- * @returns Object with compliance status and contrast ratio
- */
 export function checkContrastCompliance(
   color1: string,
   color2: string,
@@ -168,11 +108,6 @@ export function checkContrastCompliance(
   };
 }
 
-/**
- * Set focus to an element by ID
- * @param elementId - The ID of the element to focus
- * @returns Whether focus was successful
- */
 export function setFocusById(elementId: string): boolean {
   const element = document.getElementById(elementId);
   
@@ -184,11 +119,6 @@ export function setFocusById(elementId: string): boolean {
   return false;
 }
 
-/**
- * Set focus to the first error field in a form
- * @param formId - The ID of the form element
- * @returns Whether focus was successful
- */
 export function focusFirstError(formId: string): boolean {
   const form = document.getElementById(formId);
   
@@ -207,11 +137,6 @@ export function focusFirstError(formId: string): boolean {
   return false;
 }
 
-/**
- * Trap focus within a modal or dialog
- * @param containerId - The ID of the container element
- * @returns Cleanup function to remove event listeners
- */
 export function trapFocus(containerId: string): () => void {
   const container = document.getElementById(containerId);
   
@@ -259,11 +184,6 @@ export function trapFocus(containerId: string): () => void {
   };
 }
 
-/**
- * Announce a message to screen readers using ARIA live region
- * @param message - The message to announce
- * @param priority - The priority level ('polite' or 'assertive')
- */
 export function announceToScreenReader(
   message: string,
   priority: 'polite' | 'assertive' = 'polite'
@@ -292,20 +212,10 @@ export function announceToScreenReader(
   }, 1000);
 }
 
-/**
- * Check if user prefers reduced motion
- * @returns Whether reduced motion is preferred
- */
 export function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/**
- * Get appropriate animation duration based on user preferences
- * @param normalDuration - Normal animation duration in ms
- * @param reducedDuration - Reduced animation duration in ms (default: 0)
- * @returns Duration to use based on user preference
- */
 export function getAnimationDuration(
   normalDuration: number,
   reducedDuration: number = 0

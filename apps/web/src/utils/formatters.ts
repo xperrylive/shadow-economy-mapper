@@ -1,18 +1,3 @@
-/**
- * Locale Formatting Utilities
- * 
- * Formatting functions for Malaysian locale conventions:
- * - Currency: RM symbol with Malaysian formatting
- * - Date: DD/MM/YYYY format
- * - Time: 24-hour format
- * - Phone: Malaysian phone number format
- */
-
-/**
- * Format a number as Malaysian Ringgit currency
- * @param amount - The amount to format
- * @returns Formatted currency string (e.g., "RM 1,234.56")
- */
 export function formatCurrency(amount: number): string {
   // Handle invalid inputs
   if (isNaN(amount) || !isFinite(amount)) {
@@ -26,11 +11,6 @@ export function formatCurrency(amount: number): string {
   return `${sign}RM ${formatted}`;
 }
 
-/**
- * Format a date in DD/MM/YYYY format (Malaysian convention)
- * @param date - The date to format (Date object or ISO string)
- * @returns Formatted date string (e.g., "25/12/2024")
- */
 export function formatDate(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   
@@ -46,11 +26,6 @@ export function formatDate(date: Date | string): string {
   return `${day}/${month}/${year}`;
 }
 
-/**
- * Format a time in 24-hour format (Malaysian convention)
- * @param date - The date/time to format (Date object or ISO string)
- * @returns Formatted time string (e.g., "14:30")
- */
 export function formatTime(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   
@@ -65,12 +40,6 @@ export function formatTime(date: Date | string): string {
   return `${hours}:${minutes}`;
 }
 
-/**
- * Format a Malaysian phone number
- * Supports formats: 01X-XXX XXXX, 03-XXXX XXXX
- * @param phone - The phone number to format (digits only or with separators)
- * @returns Formatted phone number string
- */
 export function formatPhone(phone: string): string {
   // Remove all non-digit characters
   const digits = phone.replace(/\D/g, '');
@@ -96,23 +65,12 @@ export function formatPhone(phone: string): string {
   return phone;
 }
 
-/**
- * Parse a currency string to a number
- * Removes RM symbol, commas, and converts to number
- * @param value - The currency string to parse (e.g., "RM 1,234.56")
- * @returns Parsed number value
- */
 export function parseCurrency(value: string): number {
   const cleaned = value.replace(/[RM\s,]/g, '');
   const parsed = parseFloat(cleaned);
   return isNaN(parsed) ? 0 : parsed;
 }
 
-/**
- * Parse a date string in DD/MM/YYYY format to a Date object
- * @param value - The date string to parse (e.g., "25/12/2024")
- * @returns Date object or null if invalid
- */
 export function parseDate(value: string): Date | null {
   const parts = value.split('/');
   if (parts.length !== 3) {

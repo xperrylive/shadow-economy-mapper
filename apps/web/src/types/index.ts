@@ -1,8 +1,3 @@
-/**
- * Re-export shared types for frontend use.
- * Mirror of packages/shared-types/src/models.ts
- */
-
 // ─── Enums ───────────────────────────────────────────────
 
 export type EvidenceStatus =

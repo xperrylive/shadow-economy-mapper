@@ -1,10 +1,3 @@
-/**
- * Design System Hooks
- * 
- * Utility hooks for responsive design and accessibility preferences.
- * These hooks provide a clean API for detecting viewport sizes and user preferences.
- */
-
 export {
   useMediaQuery,
   useIsMobile,

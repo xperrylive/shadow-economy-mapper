@@ -7,9 +7,6 @@ interface LazyImageProps {
   placeholder?: string;
 }
 
-/**
- * Lazy-loaded image component with intersection observer
- */
 export function LazyImage({ src, alt, className = '', placeholder }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);

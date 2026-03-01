@@ -1,69 +1,15 @@
 import React from 'react';
 
-/**
- * Badge Component
- * 
- * A compact component for displaying status indicators, labels, and tags.
- * Supports color variants matching the design system and icon + text combinations.
- * 
- * Features:
- * - 5 color variants: primary, success, warning, danger, neutral
- * - 3 sizes: sm, md, lg
- * - Icon support (left or right)
- * - Rounded or pill-shaped
- * - Accessible with proper ARIA labels
- */
-
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  /**
-   * Color variant of the badge
-   * - primary: Blue (neutral information, primary actions)
-   * - success: Green (positive indicators, completed, high scores)
-   * - warning: Amber (caution, attention needed)
-   * - danger: Red (errors, critical issues, low scores)
-   * - neutral: Gray (default, inactive, pending)
-   */
   variant?: 'primary' | 'success' | 'warning' | 'danger' | 'neutral';
-  
-  /**
-   * Size of the badge
-   * - sm: Small, compact badge
-   * - md: Medium badge (default)
-   * - lg: Large badge for emphasis
-   */
   size?: 'sm' | 'md' | 'lg';
-  
-  /**
-   * Icon element to display (from Lucide React or other icon library)
-   */
   icon?: React.ReactNode;
-  
-  /**
-   * Position of the icon relative to text
-   */
   iconPosition?: 'left' | 'right';
-  
-  /**
-   * Badge content (text)
-   */
   children: React.ReactNode;
-  
-  /**
-   * Shape of the badge
-   * - rounded: Standard rounded corners
-   * - pill: Fully rounded (pill-shaped)
-   */
   shape?: 'rounded' | 'pill';
-  
-  /**
-   * Whether to use a dot indicator instead of an icon
-   */
   dot?: boolean;
 }
 
-/**
- * Badge Component
- */
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
   (
     {

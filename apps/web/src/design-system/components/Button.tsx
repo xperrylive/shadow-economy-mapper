@@ -1,66 +1,15 @@
 import React from 'react';
 
-/**
- * Button Component
- * 
- * A versatile button component with multiple variants, sizes, and states.
- * Designed for mobile-first accessibility with minimum 44x44px touch targets.
- * 
- * Features:
- * - 5 variants: primary, secondary, outline, ghost, danger
- * - 3 sizes: sm, md, lg (all meet 44x44px minimum touch target)
- * - Loading state with spinner
- * - Disabled state
- * - Icon support (left or right)
- * - Full keyboard accessibility
- */
-
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  /**
-   * Visual variant of the button
-   * - primary: Blue background, white text (main actions)
-   * - secondary: Gray background, dark text (secondary actions)
-   * - outline: Border only, transparent background
-   * - ghost: No border, transparent background (tertiary actions)
-   * - danger: Red background, white text (destructive actions)
-   */
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  
-  /**
-   * Size of the button
-   * All sizes meet minimum 44x44px touch target for mobile accessibility
-   */
   size?: 'sm' | 'md' | 'lg';
-  
-  /**
-   * Loading state - shows spinner and disables interaction
-   */
   loading?: boolean;
-  
-  /**
-   * Icon element to display (from Lucide React or other icon library)
-   */
   icon?: React.ReactNode;
-  
-  /**
-   * Position of the icon relative to text
-   */
   iconPosition?: 'left' | 'right';
-  
-  /**
-   * Button content
-   */
   children: React.ReactNode;
-  
-  /**
-   * Full width button
-   */
   fullWidth?: boolean;
 }
 
-/**
- * Loading Spinner Component
- */
 const Spinner: React.FC<{ size: 'sm' | 'md' | 'lg' }> = ({ size }) => {
   const sizeMap = {
     sm: 'w-4 h-4',
@@ -93,9 +42,6 @@ const Spinner: React.FC<{ size: 'sm' | 'md' | 'lg' }> = ({ size }) => {
   );
 };
 
-/**
- * Button Component
- */
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {

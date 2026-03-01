@@ -1,8 +1,3 @@
-/**
- * Icon mapping utilities
- * Maps semantic names to Lucide React icons
- */
-
 import {
   // Business & Commerce
   ShoppingBag,
@@ -92,9 +87,6 @@ import {
 
 import type { LucideIcon } from 'lucide-react';
 
-/**
- * Icon mapping for business types and channels
- */
 export const businessIcons: Record<string, LucideIcon> = {
   // E-commerce platforms
   shopee: ShoppingBag,
@@ -119,9 +111,6 @@ export const businessIcons: Record<string, LucideIcon> = {
   default: Store,
 };
 
-/**
- * Icon mapping for evidence source types
- */
 export const evidenceIcons: Record<string, LucideIcon> = {
   whatsapp: MessageCircle,
   telegram: Send,
@@ -137,9 +126,6 @@ export const evidenceIcons: Record<string, LucideIcon> = {
   default: File,
 };
 
-/**
- * Icon mapping for status types
- */
 export const statusIcons: Record<string, LucideIcon> = {
   success: CheckCircle,
   error: XCircle,
@@ -150,9 +136,6 @@ export const statusIcons: Record<string, LucideIcon> = {
   default: Info,
 };
 
-/**
- * Icon mapping for insight types
- */
 export const insightIcons: Record<string, LucideIcon> = {
   trend: TrendingUp,
   peak_day: BarChart3,
@@ -161,41 +144,26 @@ export const insightIcons: Record<string, LucideIcon> = {
   default: Info,
 };
 
-/**
- * Get icon for business type or channel
- */
 export function getBusinessIcon(type: string): LucideIcon {
   const key = type.toLowerCase().replace(/[^a-z]/g, '');
   return businessIcons[key] || businessIcons.default;
 }
 
-/**
- * Get icon for evidence source type
- */
 export function getEvidenceIcon(sourceType: string): LucideIcon {
   const key = sourceType.toLowerCase().replace(/[^a-z_]/g, '');
   return evidenceIcons[key] || evidenceIcons.default;
 }
 
-/**
- * Get icon for status
- */
 export function getStatusIcon(status: string): LucideIcon {
   const key = status.toLowerCase().replace(/[^a-z]/g, '');
   return statusIcons[key] || statusIcons.default;
 }
 
-/**
- * Get icon for insight type
- */
 export function getInsightIcon(type: string): LucideIcon {
   const key = type.toLowerCase().replace(/[^a-z_]/g, '');
   return insightIcons[key] || insightIcons.default;
 }
 
-/**
- * Export commonly used icons for direct import
- */
 export {
   // Business
   ShoppingBag,

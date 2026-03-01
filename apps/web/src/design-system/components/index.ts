@@ -1,9 +1,3 @@
-/**
- * Design System Components
- * 
- * Core UI primitives for the Shadow Economy Mapper platform
- */
-
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 

@@ -1,10 +1,5 @@
 import { useState, useCallback } from 'react';
 
-/**
- * Hook for optimistic UI updates
- * Updates UI immediately before server confirmation, with rollback on error
- */
-
 interface UseOptimisticUpdateOptions<T> {
   onUpdate: (data: T) => Promise<void>;
   onRollback?: (error: Error) => void;

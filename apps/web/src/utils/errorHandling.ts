@@ -1,16 +1,9 @@
-/**
- * Error handling utilities
- */
-
 interface ApiError {
   error: true;
   message: string;
   details?: Record<string, unknown>;
 }
 
-/**
- * Format API error into user-friendly message
- */
 export function formatApiError(error: unknown): string {
   // Handle API error response
   if (typeof error === 'object' && error !== null && 'error' in error) {
@@ -32,9 +25,6 @@ export function formatApiError(error: unknown): string {
   return 'An unexpected error occurred. Please try again.';
 }
 
-/**
- * Map HTTP status codes to user-friendly messages
- */
 export function getErrorMessageForStatus(status: number): string {
   const messages: Record<number, string> = {
     400: 'Invalid request. Please check your input and try again.',
@@ -56,9 +46,6 @@ export function getErrorMessageForStatus(status: number): string {
   return messages[status] || 'An error occurred. Please try again.';
 }
 
-/**
- * Format file upload error
- */
 export function formatFileUploadError(error: unknown): string {
   const message = formatApiError(error);
 
@@ -78,17 +65,11 @@ export function formatFileUploadError(error: unknown): string {
   return message || 'Upload failed. Please try again.';
 }
 
-/**
- * Format form validation error
- */
 export function formatValidationError(field: string, error: string): string {
   const fieldName = field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   return `${fieldName}: ${error}`;
 }
 
-/**
- * Check if error is a network error
- */
 export function isNetworkError(error: unknown): boolean {
   if (error instanceof Error) {
     return (
@@ -100,9 +81,6 @@ export function isNetworkError(error: unknown): boolean {
   return false;
 }
 
-/**
- * Check if error is an authentication error
- */
 export function isAuthError(error: unknown): boolean {
   if (typeof error === 'object' && error !== null && 'status' in error) {
     const status = (error as { status: number }).status;
@@ -111,10 +89,6 @@ export function isAuthError(error: unknown): boolean {
   return false;
 }
 
-/**
- * Get retry delay based on error type
- * @returns Delay in milliseconds, or null if should not retry
- */
 export function getRetryDelay(error: unknown, attemptNumber: number): number | null {
   // Don't retry auth errors
   if (isAuthError(error)) {

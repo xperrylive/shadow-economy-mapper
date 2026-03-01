@@ -2,90 +2,19 @@ import React from 'react';
 import { Button } from './Button';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
-/**
- * EmptyState Component
- * 
- * A friendly, encouraging empty state component that guides users when no data exists.
- * Designed to feel like an opportunity rather than an error, with clear next steps
- * and supportive messaging aligned with the informal economy context.
- * 
- * Features:
- * - Friendly illustration or icon
- * - Clear, encouraging message
- * - Primary action button with clear CTA
- * - Optional secondary guidance text
- * - Respects prefers-reduced-motion
- * - Mobile-first responsive design
- */
-
 export interface EmptyStateProps {
-  /**
-   * Icon or illustration to display
-   * Should be from Lucide React or a custom SVG
-   * Recommended size: 48-64px for icons, larger for illustrations
-   */
   icon?: React.ReactNode;
-  
-  /**
-   * Main heading message
-   * Should be clear and encouraging, not error-like
-   * Examples: "No evidence uploaded yet", "Your dashboard is ready"
-   */
   title: string;
-  
-  /**
-   * Description text providing context and guidance
-   * Should explain what this section is for and why it's empty
-   * Examples: "Upload your first evidence to start building your credibility score"
-   */
   description?: string;
-  
-  /**
-   * Primary action button text
-   * Should be a clear, actionable CTA
-   * Examples: "Upload Evidence", "Add Transaction", "Get Started"
-   */
   actionLabel?: string;
-  
-  /**
-   * Primary action button click handler
-   */
   onAction?: () => void;
-  
-  /**
-   * Secondary action button text (optional)
-   * For alternative actions like "Learn More", "View Examples"
-   */
   secondaryActionLabel?: string;
-  
-  /**
-   * Secondary action button click handler
-   */
   onSecondaryAction?: () => void;
-  
-  /**
-   * Additional guidance or tips (optional)
-   * Examples: "Tip: WhatsApp chats and bank statements work best"
-   */
   helpText?: string;
-  
-  /**
-   * Size variant
-   * - sm: Compact for inline empty states
-   * - md: Standard for section empty states (default)
-   * - lg: Large for full-page empty states
-   */
   size?: 'sm' | 'md' | 'lg';
-  
-  /**
-   * Additional CSS classes
-   */
   className?: string;
 }
 
-/**
- * EmptyState Component
- */
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   title,

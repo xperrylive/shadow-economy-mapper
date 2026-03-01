@@ -1,85 +1,18 @@
 import React from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
-/**
- * LoadingState Component
- * 
- * A comprehensive loading state component supporting skeleton screens, progress bars,
- * and spinners with contextual loading messages. Designed for mobile-first accessibility
- * and respects user motion preferences.
- * 
- * Features:
- * - Skeleton screens for predictable content layouts
- * - Progress bars with percentage and estimated time
- * - Spinners for indeterminate operations
- * - Contextual loading messages
- * - Respects prefers-reduced-motion
- * - ARIA live regions for screen reader announcements
- */
-
 export interface LoadingStateProps {
-  /**
-   * Type of loading indicator
-   * - skeleton: Skeleton screen matching content layout
-   * - progress: Progress bar with percentage
-   * - spinner: Circular spinner for indeterminate operations
-   */
   type?: 'skeleton' | 'progress' | 'spinner';
-  
-  /**
-   * Contextual loading message
-   * Examples: "Analyzing your evidence...", "Computing score...", "Uploading files..."
-   */
   message?: string;
-  
-  /**
-   * Progress percentage (0-100) - only used with type="progress"
-   */
   progress?: number;
-  
-  /**
-   * Estimated time remaining - only used with type="progress"
-   * Examples: "2 seconds remaining", "About 30 seconds left"
-   */
   estimatedTime?: string;
-  
-  /**
-   * Size of the loading indicator
-   * - sm: Small (16px spinner, thin skeleton)
-   * - md: Medium (24px spinner, medium skeleton) - default
-   * - lg: Large (32px spinner, thick skeleton)
-   */
   size?: 'sm' | 'md' | 'lg';
-  
-  /**
-   * Skeleton variant - only used with type="skeleton"
-   * - text: Text line skeleton
-   * - card: Card-shaped skeleton
-   * - circle: Circular skeleton (for avatars, scores)
-   * - custom: Custom skeleton with children
-   */
   skeletonVariant?: 'text' | 'card' | 'circle' | 'custom';
-  
-  /**
-   * Number of skeleton lines - only used with skeletonVariant="text"
-   */
   lines?: number;
-  
-  /**
-   * Custom skeleton content - only used with skeletonVariant="custom"
-   */
   children?: React.ReactNode;
-  
-  /**
-   * Additional CSS classes
-   */
   className?: string;
 }
 
-/**
- * Spinner Component
- * Circular spinner for indeterminate loading operations
- */
 const Spinner: React.FC<{ size: 'sm' | 'md' | 'lg'; prefersReducedMotion: boolean }> = ({ 
   size, 
   prefersReducedMotion 
@@ -115,10 +48,6 @@ const Spinner: React.FC<{ size: 'sm' | 'md' | 'lg'; prefersReducedMotion: boolea
   );
 };
 
-/**
- * ProgressBar Component
- * Progress bar with percentage indicator
- */
 const ProgressBar: React.FC<{ 
   progress: number; 
   size: 'sm' | 'md' | 'lg';
@@ -153,10 +82,6 @@ const ProgressBar: React.FC<{
   );
 };
 
-/**
- * SkeletonText Component
- * Text line skeleton with shimmer effect
- */
 const SkeletonText: React.FC<{ 
   lines: number; 
   size: 'sm' | 'md' | 'lg';
@@ -195,10 +120,6 @@ const SkeletonText: React.FC<{
   );
 };
 
-/**
- * SkeletonCard Component
- * Card-shaped skeleton for content cards
- */
 const SkeletonCard: React.FC<{ 
   size: 'sm' | 'md' | 'lg';
   prefersReducedMotion: boolean;
@@ -219,10 +140,6 @@ const SkeletonCard: React.FC<{
   );
 };
 
-/**
- * SkeletonCircle Component
- * Circular skeleton for avatars, scores, etc.
- */
 const SkeletonCircle: React.FC<{ 
   size: 'sm' | 'md' | 'lg';
   prefersReducedMotion: boolean;
@@ -243,9 +160,6 @@ const SkeletonCircle: React.FC<{
   );
 };
 
-/**
- * LoadingState Component
- */
 export const LoadingState: React.FC<LoadingStateProps> = ({
   type = 'spinner',
   message,

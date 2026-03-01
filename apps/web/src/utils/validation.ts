@@ -1,29 +1,8 @@
-/**
- * Validation Utilities
- * 
- * Validation functions for user inputs with specific error messages.
- * Used in forms and file uploads throughout the application.
- * 
- */
-
-/**
- * Validation result type
- */
 export interface ValidationResult {
   valid: boolean;
   error?: string;
 }
 
-/**
- * Validate a currency amount
- * Rules:
- * - Must be a valid number
- * - Must be greater than 0
- * - Must not exceed 1,000,000 (reasonable limit for informal businesses)
- * 
- * @param value - The amount to validate (can be string or number)
- * @returns Validation result with specific error message if invalid
- */
 export function validateCurrency(value: string | number): ValidationResult {
   // Convert to number if string
   const amount = typeof value === 'string' 
@@ -57,17 +36,6 @@ export function validateCurrency(value: string | number): ValidationResult {
   return { valid: true };
 }
 
-/**
- * Validate a date string in DD/MM/YYYY format
- * Rules:
- * - Must match DD/MM/YYYY format
- * - Must be a valid calendar date
- * - Must not be in the future
- * - Must not be more than 10 years in the past
- * 
- * @param value - The date string to validate
- * @returns Validation result with specific error message if invalid
- */
 export function validateDate(value: string): ValidationResult {
   // Check format
   const datePattern = /^\d{2}\/\d{2}\/\d{4}$/;
@@ -124,16 +92,6 @@ export function validateDate(value: string): ValidationResult {
   return { valid: true };
 }
 
-/**
- * Validate a Malaysian phone number
- * Rules:
- * - Must contain 9-11 digits
- * - Must start with 01 (mobile) or 03 (landline)
- * - Accepts various formats (with or without separators)
- * 
- * @param value - The phone number to validate
- * @returns Validation result with specific error message if invalid
- */
 export function validatePhone(value: string): ValidationResult {
   // Remove all non-digit characters
   const digits = value.replace(/\D/g, '');
@@ -164,17 +122,11 @@ export function validatePhone(value: string): ValidationResult {
   return { valid: true };
 }
 
-/**
- * File upload validation configuration
- */
 export interface FileValidationConfig {
   maxSizeMB?: number;
   allowedTypes?: string[];
 }
 
-/**
- * Default file upload configuration
- */
 const DEFAULT_FILE_CONFIG: Required<FileValidationConfig> = {
   maxSizeMB: 10,
   allowedTypes: [
@@ -193,9 +145,6 @@ const DEFAULT_FILE_CONFIG: Required<FileValidationConfig> = {
   ],
 };
 
-/**
- * Get human-readable file type name
- */
 function getFileTypeName(mimeType: string): string {
   const typeMap: Record<string, string> = {
     'image/jpeg': 'JPEG image',
@@ -211,17 +160,6 @@ function getFileTypeName(mimeType: string): string {
   return typeMap[mimeType] || mimeType;
 }
 
-/**
- * Validate a file for upload
- * Rules:
- * - Must not exceed maximum size (default 10MB)
- * - Must be an allowed file type
- * - File must have content (size > 0)
- * 
- * @param file - The file to validate
- * @param config - Optional validation configuration
- * @returns Validation result with specific error message if invalid
- */
 export function validateFile(
   file: File,
   config: FileValidationConfig = {}
@@ -260,13 +198,6 @@ export function validateFile(
   return { valid: true };
 }
 
-/**
- * Validate multiple files for upload
- * 
- * @param files - Array of files to validate
- * @param config - Optional validation configuration
- * @returns Array of validation results, one per file
- */
 export function validateFiles(
   files: File[],
   config: FileValidationConfig = {}
@@ -274,22 +205,10 @@ export function validateFiles(
   return files.map(file => validateFile(file, config));
 }
 
-/**
- * Check if all validation results are valid
- * 
- * @param results - Array of validation results
- * @returns True if all results are valid
- */
 export function allValid(results: ValidationResult[]): boolean {
   return results.every(result => result.valid);
 }
 
-/**
- * Get all error messages from validation results
- * 
- * @param results - Array of validation results
- * @returns Array of error messages (empty if all valid)
- */
 export function getErrors(results: ValidationResult[]): string[] {
   return results
     .filter(result => !result.valid && result.error)

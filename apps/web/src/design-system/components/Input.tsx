@@ -1,80 +1,19 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { formatCurrency, formatPhone, parseCurrency } from '../../utils/formatters';
 
-/**
- * Input Component
- * 
- * A comprehensive input component with label, validation, icons, and auto-formatting.
- * Designed for forms with real-time validation feedback and Malaysian locale support.
- * 
- * Features:
- * - Clear label above input
- * - Optional icon on left side
- * - Helper text below (gray)
- * - Error text below (red) with error icon
- * - Auto-formatting for currency (RM), dates (DD/MM/YYYY), phone numbers
- * - Real-time validation feedback
- * - Full keyboard accessibility
- */
-
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value' | 'size'> {
-  /**
-   * Label text displayed above the input
-   */
   label: string;
-  
-  /**
-   * Helper text displayed below the input (when no error)
-   */
   helperText?: string;
-  
-  /**
-   * Error message displayed below the input (takes precedence over helperText)
-   */
   error?: string;
-  
-  /**
-   * Icon element to display on the left side of the input
-   */
   icon?: React.ReactNode;
-  
-  /**
-   * Input value (controlled component)
-   */
   value: string;
-  
-  /**
-   * Change handler - receives the formatted value
-   */
   onChange: (value: string) => void;
-  
-  /**
-   * Auto-formatting type
-   * - currency: Formats as RM with thousands separator
-   * - date: Formats as DD/MM/YYYY
-   * - phone: Formats as Malaysian phone number
-   */
   autoFormat?: 'currency' | 'date' | 'phone';
-  
-  /**
-   * Size of the input
-   */
   size?: 'sm' | 'md' | 'lg';
-  
-  /**
-   * Full width input
-   */
   fullWidth?: boolean;
-  
-  /**
-   * Required field indicator
-   */
   required?: boolean;
 }
 
-/**
- * Input Component
- */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
@@ -113,9 +52,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       setDisplayValue(value);
     }, [value]);
 
-    /**
-     * Handle input change with auto-formatting
-     */
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = e.target.value;
@@ -157,9 +93,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       [autoFormat, onChange]
     );
 
-    /**
-     * Handle blur event - apply final formatting
-     */
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
         setTouched(true);
@@ -194,7 +127,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     // Determine if we should show error (only after touched or if error is present)
     const showError = error && (touched || error);
 
-    // Base container styles
     const containerClasses = [
       'flex',
       'flex-col',
@@ -202,7 +134,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       fullWidth ? 'w-full' : 'w-auto',
     ].join(' ');
 
-    // Label styles
     const labelClasses = [
       'text-sm',
       'font-medium',
@@ -210,14 +141,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       disabled ? 'opacity-50' : '',
     ].join(' ');
 
-    // Input wrapper styles (for icon support)
     const wrapperClasses = [
       'relative',
       'flex',
       'items-center',
     ].join(' ');
 
-    // Input size styles
     const sizeStyles = {
       sm: [
         'min-h-[44px]',  // Minimum 44px height for touch accessibility
@@ -239,7 +168,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ],
     };
 
-    // Input base styles
     const inputBaseStyles = [
       'w-full',
       'rounded-lg',
@@ -254,7 +182,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       'disabled:bg-neutral-50',
     ];
 
-    // Input state styles (error vs normal)
     const inputStateStyles = showError
       ? [
           'border-danger-500',
@@ -270,10 +197,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           'hover:border-neutral-400',
         ];
 
-    // Icon padding
     const iconPaddingStyles = icon ? ['pl-11'] : [];
 
-    // Combine input styles
     const inputClasses = [
       ...inputBaseStyles,
       ...sizeStyles[size],
@@ -282,7 +207,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       className,
     ].join(' ');
 
-    // Helper/error text styles
     const helperTextClasses = [
       'text-sm',
       'flex',
@@ -291,7 +215,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       showError ? 'text-danger-600' : 'text-neutral-600',
     ].join(' ');
 
-    // Icon container styles
     const iconContainerClasses = [
       'absolute',
       'left-3',

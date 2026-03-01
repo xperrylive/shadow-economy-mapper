@@ -10,38 +10,24 @@ interface ScoreCardProps {
   computing?: boolean;
 }
 
-/**
- * Get color for score range
- * Green (71-100), Amber (41-70), Red (0-40)
- */
 function getScoreColor(score: number): string {
   if (score >= 71) return '#22c55e'; // success-500 green
   if (score >= 41) return '#f59e0b'; // warning-500 amber
   return '#ef4444'; // danger-500 red
 }
 
-/**
- * Get Tailwind color classes for score range
- */
 function getScoreColorClasses(score: number): string {
   if (score >= 71) return 'text-success-600';
   if (score >= 41) return 'text-warning-600';
   return 'text-danger-600';
 }
 
-/**
- * Get label for score range
- * "Strong" (71-100), "Fair" (41-70), "Needs Improvement" (0-40)
- */
 function getScoreLabel(score: number): string {
   if (score >= 71) return 'Strong';
   if (score >= 41) return 'Fair';
   return 'Needs Improvement';
 }
 
-/**
- * Configuration for confidence level badges
- */
 const CONFIDENCE_CONFIG: Record<ConfidenceLevel, { icon: typeof ShieldCheck; className: string; label: string }> = {
   HIGH: { 
     icon: ShieldCheck, 

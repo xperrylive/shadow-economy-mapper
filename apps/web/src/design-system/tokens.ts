@@ -1,27 +1,3 @@
-/**
- * Design Tokens for Shadow Economy Mapper
- * 
- * This module defines the core design tokens for the platform's UI redesign,
- * aligned with financial inclusion and informal economy context.
- * 
- * Tokens include:
- * - Color palettes (primary, success, warning, danger, neutral)
- * - Spacing scale (xs to 3xl)
- * - Typography system (font families, sizes, weights)
- * - Shadows (sm to xl)
- * - Border radius (sm to full)
- */
-
-/**
- * Color Palettes
- *
- * Primary (Teal): Warm trust and stability for financial credibility
- * Accent (Amber/Gold): Warm highlights and call-to-action elements
- * Success (Green): Positive financial indicators, income, growth, high scores
- * Warning (Amber): Attention needed, cautions
- * Danger (Red): Critical issues, low scores, errors
- * Neutral (Stone/Warm Gray): Text, backgrounds, borders
- */
 export const colors = {
   // Primary: Warm trust and stability (teal)
   primary: {
@@ -108,12 +84,6 @@ export const colors = {
   },
 } as const;
 
-/**
- * Spacing Scale
- * 
- * Consistent spacing system based on 4px base unit
- * Used for padding, margins, gaps throughout the UI
- */
 export const spacing = {
   xs: '0.25rem',    // 4px
   sm: '0.5rem',     // 8px
@@ -124,12 +94,6 @@ export const spacing = {
   '3xl': '4rem',    // 64px
 } as const;
 
-/**
- * Typography System
- * 
- * Font families, sizes, and weights for text hierarchy
- * Optimized for readability on mobile devices
- */
 export const typography = {
   fontFamily: {
     sans: 'Inter, system-ui, -apple-system, sans-serif',
@@ -152,12 +116,6 @@ export const typography = {
   },
 } as const;
 
-/**
- * Shadow System
- * 
- * Elevation shadows for cards, modals, and floating elements
- * Creates depth and visual hierarchy
- */
 export const shadows = {
   sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
   base: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
@@ -166,12 +124,6 @@ export const shadows = {
   xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
 } as const;
 
-/**
- * Border Radius System
- * 
- * Rounded corners for cards, buttons, inputs, and other UI elements
- * Creates friendly, approachable aesthetic
- */
 export const borderRadius = {
   sm: '0.25rem',   // 4px
   base: '0.5rem',  // 8px
@@ -181,9 +133,6 @@ export const borderRadius = {
   full: '9999px',  // Fully rounded (pills, circles)
 } as const;
 
-/**
- * Type Definitions
- */
 export type ColorPalette = typeof colors;
 export type ColorVariant = keyof typeof colors;
 export type ColorShade = keyof typeof colors.primary;
@@ -201,11 +150,6 @@ export type ShadowValue = keyof typeof shadows;
 export type BorderRadiusScale = typeof borderRadius;
 export type BorderRadiusValue = keyof typeof borderRadius;
 
-/**
- * Design Token Interface
- * 
- * Complete design token system for the platform
- */
 export interface DesignTokens {
   colors: ColorPalette;
   spacing: SpacingScale;
@@ -214,9 +158,6 @@ export interface DesignTokens {
   borderRadius: BorderRadiusScale;
 }
 
-/**
- * Default export of all design tokens
- */
 export const tokens: DesignTokens = {
   colors,
   spacing,

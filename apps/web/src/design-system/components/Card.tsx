@@ -1,51 +1,12 @@
 import React from 'react';
 
-/**
- * Card Component
- * 
- * A versatile container component with configurable padding, shadow, and border.
- * Used as a standard container throughout the application for grouping related content.
- * 
- * Features:
- * - White background with rounded corners (16px)
- * - Configurable padding (sm, md, lg)
- * - Configurable shadow (sm, base, md, lg)
- * - Optional border
- * - Responsive design
- */
-
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Padding size
-   * - sm: 12px (0.75rem)
-   * - md: 16px (1rem) - default
-   * - lg: 24px (1.5rem)
-   */
   padding?: 'sm' | 'md' | 'lg';
-  
-  /**
-   * Shadow size
-   * - sm: Subtle shadow
-   * - base: Standard shadow - default
-   * - md: Medium shadow
-   * - lg: Large shadow
-   */
   shadow?: 'sm' | 'base' | 'md' | 'lg';
-  
-  /**
-   * Whether to show a border
-   */
   border?: boolean;
-  
-  /**
-   * Card content
-   */
   children: React.ReactNode;
 }
 
-/**
- * Card Component
- */
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   (
     {
